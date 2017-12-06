@@ -48,7 +48,7 @@ vec3 Bokeh(sampler2D tex, vec2 uv, float radius)
 }
 
 void main() {
-    float blend = max(beat - 0.2, 0.0) * 0.7;
+    float blend = max(beat - 0.4, 0.0) * 0.7;
         // 0.0;
         // (sin(time) * 0.5 + 0.5) * 0.1;
         // (pow(1.0 - mod(time, 4.0) / 4.0, 8.0)) * 0.8;

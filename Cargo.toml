@@ -33,6 +33,7 @@ glium = "0.18.1"
 log = "0.3.8"
 nalgebra = "0.13.1"
 pretty_env_logger = "0.1.1"
+rand = "0.3.18"
 sfml = "0.14.0"
 toml = "0.4.5"
 
