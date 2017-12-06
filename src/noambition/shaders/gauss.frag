@@ -60,7 +60,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
 
 void main() {
-    float blend = 0.0; //sin(time) * 0.5 + 0.5;
+    float blend = 0.5; //sin(time) * 0.5 + 0.5;
     mainImage(fg_color, frag_texcoord * iResolution);
     vec4 alt_color = vec4(texture(tex_color, frag_texcoord));
     fg_color = fg_color * (1.0 - blend) + alt_color * blend;

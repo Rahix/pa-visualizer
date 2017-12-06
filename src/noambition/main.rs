@@ -292,11 +292,11 @@ pub fn visualizer(
                 let x = -(column as f32 / (display_columns - 1) as f32 * 10.0) - mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, 0.0, 1.0],
+                    position: [x, y, - base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
-                    position: [x, y, 0.1, 1.0],
+                    position: [x, y, base_height / 2.0, 1.0],
                     color: color,
                 });
                 i_buf.push(index);
@@ -310,11 +310,11 @@ pub fn visualizer(
                 let x = column as f32 / (display_columns - 1) as f32 * 10.0 + mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, 0.0, 1.0],
+                    position: [x, y, - base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
-                    position: [x, y, 0.1, 1.0],
+                    position: [x, y, base_height / 2.0, 1.0],
                     color: color,
                 });
                 i_buf.push(index);
@@ -343,11 +343,11 @@ pub fn visualizer(
                 let x = -(column as f32 / (display_columns - 1) as f32 * 10.0) - mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, 0.0, 1.0],
+                    position: [x, y, - base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
-                    position: [x, y, 0.1, 1.0],
+                    position: [x, y, base_height / 2.0, 1.0],
                     color: color,
                 });
                 i_buf.push(index);
@@ -361,11 +361,11 @@ pub fn visualizer(
                 let x = column as f32 / (display_columns - 1) as f32 * 10.0 + mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, 0.0, 1.0],
+                    position: [x, y, - base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
-                    position: [x, y, 0.1, 1.0],
+                    position: [x, y, base_height / 2.0, 1.0],
                     color: color,
                 });
                 i_buf.push(index);
@@ -404,9 +404,7 @@ pub fn visualizer(
     let offset_left = row_size * alter_row;
     let offset_right = row_size * alter_row + display_columns * 2;
     let mut previous_offset = 0.0;
-    let mut previous_time = 0.0;
     let mut row_buffer = Vec::with_capacity(display_columns * 4);
-    let mut accumulate_frames = 0;
     let mut accumulate_buffer = (
         vec![0.0; display_columns + 1],
         vec![0.0; display_columns + 1],
@@ -428,17 +426,14 @@ pub fn visualizer(
         let model = na::Translation3::from_vector(na::Vector3::new(0.0, -offset, 0.0))
             .to_homogeneous();
 
-        let mut beat = 0.0;
-        {
+        let beat = {
             let ai = audio_info.read().expect("Couldn't read audio info");
             for i in 0..display_columns {
                 accumulate_buffer.0[i] = ai.spectrum_left[i].max(accumulate_buffer.0[i]);
                 accumulate_buffer.1[i] = ai.spectrum_right[i].max(accumulate_buffer.1[i]);
             }
-            beat = (ai.spectrum_left[1] + ai.spectrum_right[1] + ai.spectrum_left[2] +
-                        ai.spectrum_right[2]) / 4.0;
-            accumulate_frames = 1;
-        }
+            (ai.spectrum_left[1] + ai.spectrum_right[1]) / 2.0
+        };
 
         if previous_offset > offset {
             // We are jumping this frame
@@ -472,34 +467,33 @@ pub fn visualizer(
             for c in 0..display_columns {
                 let c2 = c * 2;
                 lines_buffers.2[c2 + offset_left].position[2] =
-                    -accumulate_buffer.0[c + 1] / accumulate_frames as f32 * amplitude_bottom -
+                    -accumulate_buffer.0[c + 1] * amplitude_bottom -
                         base_height / 2.0;
                 lines_buffers.2[c2 + 1 + offset_left].position[2] =
-                    accumulate_buffer.0[c + 1] / accumulate_frames as f32 * amplitude_top +
+                    accumulate_buffer.0[c + 1] * amplitude_top +
                         base_height / 2.0;
                 lines_buffers.2[c2 + offset_right].position[2] =
-                    -accumulate_buffer.1[c + 1] / accumulate_frames as f32 * amplitude_bottom -
+                    -accumulate_buffer.1[c + 1] * amplitude_bottom -
                         base_height / 2.0;
                 lines_buffers.2[c2 + 1 + offset_right].position[2] =
-                    accumulate_buffer.1[c + 1] / accumulate_frames as f32 * amplitude_top +
+                    accumulate_buffer.1[c + 1] * amplitude_top +
                         base_height / 2.0;
 
                 points_buffers.2[c2 + offset_left].position[2] =
-                    -accumulate_buffer.0[c + 1] / accumulate_frames as f32 * amplitude_bottom -
+                    -accumulate_buffer.0[c + 1] * amplitude_bottom -
                         base_height / 2.0;
                 points_buffers.2[c2 + 1 + offset_left].position[2] =
-                    accumulate_buffer.0[c + 1] / accumulate_frames as f32 * amplitude_top +
+                    accumulate_buffer.0[c + 1] * amplitude_top +
                         base_height / 2.0;
                 points_buffers.2[c2 + offset_right].position[2] =
-                    -accumulate_buffer.1[c + 1] / accumulate_frames as f32 * amplitude_bottom -
+                    -accumulate_buffer.1[c + 1] * amplitude_bottom -
                         base_height / 2.0;
                 points_buffers.2[c2 + 1 + offset_right].position[2] =
-                    accumulate_buffer.1[c + 1] / accumulate_frames as f32 * amplitude_top +
+                    accumulate_buffer.1[c + 1] * amplitude_top +
                         base_height / 2.0;
             }
 
             // Clear buffer
-            accumulate_frames = 0;
             for i in 0..display_columns {
                 accumulate_buffer.0[i] = 0.0;
                 accumulate_buffer.1[i] = 0.0;
@@ -606,7 +600,7 @@ pub fn visualizer(
             .draw(
                 &quad_vertex_buffer,
                 &quad_index_buffer,
-                &bokeh_program,
+                &gauss_program,
                 &uniforms1,
                 &Default::default(),
             )
@@ -651,7 +645,6 @@ pub fn visualizer(
         }
 
         previous_offset = offset;
-        previous_time = time;
 
         ::std::thread::sleep(::std::time::Duration::from_millis(10));
     }
