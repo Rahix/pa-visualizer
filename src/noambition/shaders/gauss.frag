@@ -65,7 +65,7 @@ void main() {
     mainImage(fg_color, frag_texcoord * iResolution);
     vec4 alt_color = vec4(texture(tex_color, frag_texcoord));
     fg_color = fg_color * (1.0 - blend) + alt_color * blend;
-    float fact = pow(cos(PI * (frag_texcoord.y - 0.5)), 0.5) * 0.9 + 0.1;
+    float fact = pow(cos(PI * (frag_texcoord.y - 0.5)), 0.5) * 0.8 + 0.2;
     fg_color = vec4(fg_color.rgb * fact, fg_color.a);
     fg_position = vec4(texture(tex_position, frag_texcoord));
     fg_screen_position = vec4(texture(tex_screen_position, frag_texcoord));

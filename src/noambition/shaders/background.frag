@@ -31,7 +31,7 @@ float bg_func2(vec2 coords) {
     c.y += 0.1;
     float factor = 5.0 * (1.0 - beat);
     c *= (1.0 - beat) * 0.8 + 3.0;
-    return 1.0 - smoothstep(-factor, factor, pow(c.x, 2.0) + pow(c.y - pow(pow(c.x, 2.0), 1.0 / 3.0), 2.0) - 1.0) * 0.9;
+    return 1.0 - smoothstep(-factor, factor, pow(c.x, 2.0) + pow(c.y - pow(pow(c.x, 2.0), 1.0 / 3.0), 2.0) - 1.0) * 0.8;
 }
 
 // Production
