@@ -1,0 +1,43 @@
+[package]
+authors = ["Rahix <rahix@rahix.de>"]
+name = "pa-visualizer"
+version = "0.1.0"
+
+[[bin]]
+name = "pa-visualizer-ascii"
+path = "src/ascii.rs"
+
+[[bin]]
+name = "pa-visualizer-python"
+path = "src/python.rs"
+
+[[bin]]
+name = "pa-visualizer-sfml-simple"
+path = "src/sfml-simple.rs"
+
+[[bin]]
+name = "pa-visualizer-sfml-wireline"
+path = "src/sfml-wireline.rs"
+
+[[bin]]
+name = "pa-visualizer-sfml-wirecircle"
+path = "src/sfml-wirecircle.rs"
+
+[[bin]]
+name = "pa-visualizer-noambition"
+path = "src/noambition/main.rs"
+
+[dependencies]
+cpython = "0.1.0"
+glium = "0.18.1"
+log = "0.3.8"
+nalgebra = "0.13.1"
+pretty_env_logger = "0.1.1"
+sfml = "0.14.0"
+toml = "0.4.5"
+
+[dependencies.framework]
+path = "framework/"
+
+[workspace]
+members = ["framework"]

@@ -1,0 +1,11 @@
+[package]
+authors = ["Rahix <rahix@rahix.de>"]
+name = "framework"
+version = "0.1.0"
+
+[dependencies]
+dft = "0.5.5"
+log = "0.3.8"
+pulse-simple = "1.0.0"
+rb = "0.3.1"
+toml = "0.4.5"
