@@ -1,6 +1,7 @@
 #version 410
 
-// Bokeh, taken from https://www.shadertoy.com/view/4d2Xzw
+// Bokeh disc shader, written by David Hoskins
+// https://www.shadertoy.com/view/4d2Xzw
 
 uniform sampler2D tex_position;
 uniform sampler2D tex_screen_position;

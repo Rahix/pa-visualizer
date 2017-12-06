@@ -1,12 +1,15 @@
 #version 410
 
-// GAUSS BLUR, taken from https://www.shadertoy.com/view/XdfGDH
+// GAUSS BLUR shader, written by mrharicot
+// https://www.shadertoy.com/view/XdfGDH
 
 uniform sampler2D tex_position;
 uniform sampler2D tex_screen_position;
 uniform sampler2D tex_color;
 uniform float time;
 uniform vec2 resolution;
+
+#define iResolution resolution
 
 smooth in vec2 frag_texcoord;
 
@@ -19,7 +22,6 @@ float normpdf(in float x, in float sigma)
     return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
 }
 
-#define iResolution resolution
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
