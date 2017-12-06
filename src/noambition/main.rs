@@ -468,7 +468,6 @@ pub fn visualizer(
         vec![0.0; display_columns + 1],
     );
 
-    let model_lightning = na::Matrix4::identity();
     let mut do_lightning = false;
     let mut last_lightning = 0.0;
 
@@ -488,6 +487,8 @@ pub fn visualizer(
         let offset = speed * (time % row_time);
 
         let model_grid = na::Translation3::from_vector(na::Vector3::new(0.0, -offset, 0.0))
+            .to_homogeneous();
+        let model_lightning = na::Translation3::from_vector(na::Vector3::new(0.0, -speed * time, 0.0))
             .to_homogeneous();
 
         let beat = {
@@ -584,7 +585,7 @@ pub fn visualizer(
 
             let num_points = rng.gen_range::<usize>(4, lightning_points_max);
             let num_lines = rng.gen_range::<usize>(3, lightning_lines_max);
-            let position = na::Point3::new(rng.gen_range::<f32>(-5.0, 5.0), 10.0, rng.gen_range::<f32>(-2.0, 2.0));
+            let position = na::Point3::new(rng.gen_range::<f32>(-5.0, 5.0), 15.0 + speed * time, rng.gen_range::<f32>(-2.0, 2.0));
             let max_points = lightning_max * lightning_points_max;
             let max_lines = lightning_max * lightning_lines_max;
             for i in 0..num_points {
