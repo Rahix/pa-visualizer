@@ -429,8 +429,9 @@ pub fn visualizer(
         let beat = {
             let ai = audio_info.read().expect("Couldn't read audio info");
             for i in 0..display_columns {
-                accumulate_buffer.0[i] = ai.spectrum_left[i].max(accumulate_buffer.0[i]);
-                accumulate_buffer.1[i] = ai.spectrum_right[i].max(accumulate_buffer.1[i]);
+                let fact = i as f32 / display_columns as f32 * 5.0 + 1.0;
+                accumulate_buffer.0[i] = f32::max(accumulate_buffer.0[i], ai.spectrum_left[i] * fact);
+                accumulate_buffer.1[i] = f32::max(accumulate_buffer.1[i], ai.spectrum_right[i] * fact);
             }
             (ai.spectrum_left[1] + ai.spectrum_right[1]) / 2.0
         };
