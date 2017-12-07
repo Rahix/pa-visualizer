@@ -123,7 +123,7 @@ pub fn visualizer(
         for si in 0..display_columns {
             //let reshape = ((si as f32) / (display_columns as f32)).sqrt();
             let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
-            let vl = ai.spectrum_left[si] * reshape;
+            let vl = ai.columns_left[si] * reshape;
             let size = vl * factor;
             rect.set_size((width, size));
             if symmetric {
@@ -144,7 +144,7 @@ pub fn visualizer(
             }
             window.draw(&rect);
             if right_channel || symmetric {
-                let vr = ai.spectrum_right[si] * reshape;
+                let vr = ai.columns_right[si] * reshape;
                 let size = vr * factor;
                 rect.set_size((width, size));
                 if symmetric {

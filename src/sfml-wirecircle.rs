@@ -85,7 +85,7 @@ pub fn visualizer(
             let angle = si as f32 / (display_columns * 2 - 2) as f32 * 2.0 *
                 ::std::f32::consts::PI - ::std::f32::consts::PI / 2.0;
 
-            let vr = ai.spectrum_right[si] * reshape;
+            let vr = ai.columns_right[si] * reshape;
             let size = vr * factor;
             vertex_array_top.push(sfml::graphics::Vertex::with_pos((
                 angle.cos() * (radius + size),
@@ -114,7 +114,7 @@ pub fn visualizer(
             let angle = (si) as f32 / (display_columns * 2 - 2) as f32 * 2.0 *
                 ::std::f32::consts::PI + ::std::f32::consts::PI / 2.0;
 
-            let vl = ai.spectrum_left[display_columns - si - 1] * reshape;
+            let vl = ai.columns_left[display_columns - si - 1] * reshape;
             let size = vl * factor;
             vertex_array_top.push(sfml::graphics::Vertex::with_pos((
                 angle.cos() * (radius + size),

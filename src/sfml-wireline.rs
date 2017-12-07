@@ -104,7 +104,7 @@ pub fn visualizer(
         for si in 0..display_columns {
             let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
 
-            let vl = ai.spectrum_left[si] * reshape;
+            let vl = ai.columns_left[si] * reshape;
             let size = vl * factor;
             vertex_array_left_top[si].position.y = -size / 2.0;
             vertex_array_left_bottom[si].position.y = size / 2.0;
@@ -112,7 +112,7 @@ pub fn visualizer(
             vertex_array_left_ttb[si * 2].position.y = -size / 2.0;
             vertex_array_left_ttb[si * 2 + 1].position.y = size / 2.0;
 
-            let vr = ai.spectrum_right[si] * reshape;
+            let vr = ai.columns_right[si] * reshape;
             let size = vr * factor;
             vertex_array_right_top[si].position.y = -size / 2.0;
             vertex_array_right_bottom[si].position.y = size / 2.0;

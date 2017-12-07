@@ -57,10 +57,10 @@ pub fn visualizer(
 
         // Execute script
         locals
-            .set_item(py, "__left_spectrum", &ai.spectrum_left)
+            .set_item(py, "__left_spectrum", &ai.columns_left)
             .unwrap();
         locals
-            .set_item(py, "__right_spectrum", &ai.spectrum_right)
+            .set_item(py, "__right_spectrum", &ai.columns_right)
             .unwrap();
         if !py.eval(
             "frame(__left_spectrum, __right_spectrum)",
