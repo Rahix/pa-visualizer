@@ -12,14 +12,15 @@ pub fn visualizer(
 
     let time = config
         .get("TIME")
-        .map(|v| {
-            v.as_float().expect("TIME must be a float")
-        })
+        .map(|v| v.as_float().expect("TIME must be a float"))
         .unwrap_or(60.0) as f32;
     info!("TIME = {}s", time);
 
-    let filename = config.get("FILENAME")
-        .map(|v| String::from(v.as_str().expect("FILENAME must be a string")))
+    let filename = config
+        .get("FILENAME")
+        .map(|v| {
+            String::from(v.as_str().expect("FILENAME must be a string"))
+        })
         .unwrap_or(String::from("data.m"));
     info!("FILENAME = \"{}\"", filename);
 

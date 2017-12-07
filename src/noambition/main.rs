@@ -176,7 +176,9 @@ pub fn visualizer(
 
     let lightning_beat_column = config
         .get("NA_LN_BEAT_COL")
-        .map(|v| v.as_integer().expect("NA_LN_BEAT_COL must be an integer"))
+        .map(|v| {
+            v.as_integer().expect("NA_LN_BEAT_COL must be an integer")
+        })
         .unwrap_or(16) as usize;
     info!("NA_LN_BEAT_COL = {}", lightning_beat_column);
 
@@ -517,10 +519,16 @@ pub fn visualizer(
                 accumulate_buffer.1[i] =
                     f32::max(accumulate_buffer.1[i], ai.columns_right[i] * fact);
             }
-            let max_l = ai.raw_spectrum_left.iter().cloned().fold(0./0., f32::max);
-            let max_r = ai.raw_spectrum_right.iter().cloned().fold(0./0., f32::max);
-            ((ai.columns_left[1] + ai.columns_right[1]) / 2.0,
-            (ai.raw_spectrum_left[lightning_beat_column] / max_l + ai.raw_spectrum_right[lightning_beat_column] / max_r) / 2.0)
+            let max_l = ai.raw_spectrum_left.iter().cloned().fold(0. / 0., f32::max);
+            let max_r = ai.raw_spectrum_right.iter().cloned().fold(
+                0. / 0.,
+                f32::max,
+            );
+            (
+                (ai.columns_left[1] + ai.columns_right[1]) / 2.0,
+                (ai.raw_spectrum_left[lightning_beat_column] / max_l +
+                     ai.raw_spectrum_right[lightning_beat_column] / max_r) / 2.0,
+            )
         };
 
         if beat2 > lightning_sensitivity {
@@ -608,9 +616,15 @@ pub fn visualizer(
             let max_lines = lightning_max * lightning_lines_max;
             for i in 0..num_points {
                 let mut pos = position;
-                pos.x += rng.gen_range::<f32>(-lightning_size * lightning_size_deform_factor, lightning_size * lightning_size_deform_factor);
+                pos.x += rng.gen_range::<f32>(
+                    -lightning_size * lightning_size_deform_factor,
+                    lightning_size * lightning_size_deform_factor,
+                );
                 pos.y += rng.gen_range::<f32>(-lightning_size, lightning_size);
-                pos.z += rng.gen_range::<f32>(-lightning_size / lightning_size_deform_factor, lightning_size / lightning_size_deform_factor);
+                pos.z += rng.gen_range::<f32>(
+                    -lightning_size / lightning_size_deform_factor,
+                    lightning_size / lightning_size_deform_factor,
+                );
                 lightning_buffers.2[(lightning_buffers.4 + i) % max_points] = Vertex {
                     position: Into::<[f32; 4]>::into(pos.to_homogeneous()),
                     color: [0.3, 0.4, 1.0, 0.8],
