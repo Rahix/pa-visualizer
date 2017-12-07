@@ -10,5 +10,5 @@ MAX_DAMPEN = 0.99
 COLUMNS = 75
 DISPLAY_COLUMNS = 50
 
-TIME = 10.0
-FILENAME = "/tmp/data.m"
+TIME = 20.0
+FILENAME = "/tmp/datafile.m"

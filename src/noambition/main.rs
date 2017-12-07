@@ -120,11 +120,23 @@ pub fn visualizer(
         .unwrap_or(0.5) as f32;
     info!("NA_MID_DISTANCE = {}", mid_dist);
 
-    let speed = config
+    let base_speed = config
         .get("NA_SPEED")
         .map(|v| v.as_float().expect("NA_SPEED must be a float"))
         .unwrap_or(1.0) as f32;
-    info!("NA_SPEED = {}", speed);
+    info!("NA_SPEED = {}", base_speed);
+
+    let speed_dampen = config
+        .get("NA_SPEED_DAMPEN")
+        .map(|v| v.as_float().expect("NA_SPEED_DAMPEN must be a float"))
+        .unwrap_or(0.99) as f32;
+    info!("NA_SPEED_DAMPEN = {}", speed_dampen);
+
+    let speed_deviation = config
+        .get("NA_SPEED_DEVIATION")
+        .map(|v| v.as_float().expect("NA_SPEED_DEVIATION must be a float"))
+        .unwrap_or(1.0) as f32;
+    info!("NA_SPEED_DEVIATION = {}", speed_deviation);
 
     let depth = config
         .get("NA_DEPTH")
@@ -478,7 +490,6 @@ pub fn visualizer(
     let alter_row = rows * 3 / 4;
     let row_size = display_columns * 4;
     let row_distance = 30.0 / (rows - 1) as f32;
-    let row_time = row_distance / speed;
     let offset_left = row_size * alter_row;
     let offset_right = row_size * alter_row + display_columns * 2;
     let mut previous_offset = 0.0;
@@ -490,12 +501,15 @@ pub fn visualizer(
 
     let mut do_lightning = false;
     let mut last_lightning = 0.0;
+    let mut lightning_offset = 0.0;
 
     let mut rng = rand::thread_rng();
 
     let start_time = ::std::time::Instant::now();
 
     let mut is_beat_previous = vec![false; lightning_beat_columns.len()];
+    let mut volume = 0.0;
+    let mut previous_time = 0.0;
 
     'mainloop: loop {
         use glium::Surface;
@@ -506,25 +520,36 @@ pub fn visualizer(
             t.as_secs() as f32 + t.subsec_nanos() as f32 * 1e-9
         };
 
-        let offset = speed * (time % row_time);
+        let delta = time - previous_time;
+        let speed = base_speed + volume * speed_deviation;
+        volume = volume * speed_dampen;
+
+        lightning_offset += speed * delta;
+
+        let offset = (previous_offset + speed * delta) % row_distance;
 
         let model_grid = na::Translation3::from_vector(na::Vector3::new(0.0, -offset, 0.0))
             .to_homogeneous();
         let model_lightning = na::Translation3::from_vector(
-            na::Vector3::new(0.0, -speed * time, 0.0),
+            na::Vector3::new(0.0, -lightning_offset, 0.0),
         ).to_homogeneous();
 
         let (beat, is_beat) = {
             let ai = audio_info.read().expect("Couldn't read audio info");
+            let mut current_volume = 0.0;
             for i in 0..display_columns {
                 let fact = i as f32 / display_columns as f32 * 5.0 + 1.0;
+                let left = ai.columns_left[i];
+                let right = ai.columns_right[i];
+                current_volume += left + right;
                 accumulate_buffer.0[i] =
-                    f32::max(accumulate_buffer.0[i], ai.columns_left[i] * fact);
+                    f32::max(accumulate_buffer.0[i], left * fact);
                 accumulate_buffer.1[i] =
-                    f32::max(accumulate_buffer.1[i], ai.columns_right[i] * fact);
+                    f32::max(accumulate_buffer.1[i], right * fact);
             }
-            let max_l = ai.raw_spectrum_left.iter().cloned().fold(0. / 0., f32::max);
-            let max_r = ai.raw_spectrum_right.iter().cloned().fold( 0. / 0., f32::max);
+            volume = volume.max(current_volume / display_columns as f32 / 2.0);
+            let max_l = ai.raw_spectrum_left.iter().cloned().fold(0. / 0., f32::max).max(1.0);
+            let max_r = ai.raw_spectrum_right.iter().cloned().fold( 0. / 0., f32::max).max(1.0);
             let is_beat = lightning_beat_columns.iter().map(|&(c, s)| (ai.raw_spectrum_left[c] / max_l + ai.raw_spectrum_right[c] / max_r) / 2.0 > s).collect::<Vec<bool>>();
             (
                 (ai.columns_left[1] + ai.columns_right[1]) / 2.0,
@@ -609,6 +634,7 @@ pub fn visualizer(
             //debug!("{} fps", 1.0 / d);
         }
 
+
         // Lightning
         if do_lightning {
             use rand::Rng;
@@ -617,8 +643,8 @@ pub fn visualizer(
             let num_lines = rng.gen_range::<usize>(3, lightning_lines_max);
             let position = na::Point3::new(
                 rng.gen_range::<f32>(-2.5, 2.5),
-                5.0 + speed * time,
-                rng.gen_range::<f32>(-1.0, 1.0),
+                5.0 + lightning_offset,
+                rng.gen_range::<f32>(-0.2, 0.2) + cam_height,
             );
             let max_points = lightning_max * lightning_points_max;
             let max_lines = lightning_max * lightning_lines_max;
@@ -822,6 +848,7 @@ pub fn visualizer(
         }
 
         previous_offset = offset;
+        previous_time = time;
 
         ::std::thread::sleep(::std::time::Duration::from_millis(1));
     }
