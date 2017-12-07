@@ -17,7 +17,7 @@ use glium::glutin;
 macro_rules! shader_program {
     ($display:expr, $vert_file:expr, $frag_file:expr) => ({
         // Use this for debug
-        let vert_src = {
+        /*let vert_src = {
             use ::std::io::Read;
             let mut buf = String::new();
             let mut f = ::std::fs::File::open(format!("src/noambition/{}", $vert_file)).unwrap();
@@ -38,12 +38,12 @@ macro_rules! shader_program {
         glium::Program::from_source($display,
                 &vert_src,
                 &frag_src,
-                None).unwrap()
+                None).unwrap()*/
         // Use this for release
-        //glium::Program::from_source($display,
-        //    include_str!($vert_file),
-        //    include_str!($frag_file),
-        //    None).unwrap()
+        glium::Program::from_source($display,
+            include_str!($vert_file),
+            include_str!($frag_file),
+            None).unwrap()
     })
 }
 
@@ -134,7 +134,9 @@ pub fn visualizer(
 
     let speed_deviation = config
         .get("NA_SPEED_DEVIATION")
-        .map(|v| v.as_float().expect("NA_SPEED_DEVIATION must be a float"))
+        .map(|v| {
+            v.as_float().expect("NA_SPEED_DEVIATION must be a float")
+        })
         .unwrap_or(1.0) as f32;
     info!("NA_SPEED_DEVIATION = {}", speed_deviation);
 
@@ -183,18 +185,40 @@ pub fn visualizer(
     let lightning_beat_columns = config
         .get("NA_LN_BEAT_COLS")
         .map(|a| {
-            a.as_array().expect("NA_LN_BEAT_COLS must be an array").iter()
-                .map(|t| { let table = t.as_table().expect("NA_LN_BEAT_COLS must be an array of tables");
+            a.as_array()
+                .expect("NA_LN_BEAT_COLS must be an array")
+                .iter()
+                .map(|t| {
+                    let table = t.as_table().expect(
+                        "NA_LN_BEAT_COLS must be an array of tables",
+                    );
                     (
-                        table.get("c").expect("NA_LN_BEAT_COLS element is missing \"c\" (column)")
-                            .as_integer().expect("NA_LN_BEAT_COLS element \"c\" must be an integer") as usize,
-                        table.get("s").expect("NA_LN_BEAT_COLS element is missing \"s\" (sensitivity)")
-                            .as_float().expect("NA_LN_BEAT_COLS element \"s\" must be a float") as f32,
+                        table
+                            .get("c")
+                            .expect("NA_LN_BEAT_COLS element is missing \"c\" (column)")
+                            .as_integer()
+                            .expect("NA_LN_BEAT_COLS element \"c\" must be an integer") as
+                            usize,
+                        table
+                            .get("s")
+                            .expect("NA_LN_BEAT_COLS element is missing \"s\" (sensitivity)")
+                            .as_float()
+                            .expect("NA_LN_BEAT_COLS element \"s\" must be a float") as
+                            f32,
                     )
-                }).collect()
+                })
+                .collect()
         })
         .unwrap_or(vec![(16usize, 0.35)]);
     info!("NA_LN_BEAT_COL = {:?}", lightning_beat_columns);
+
+    let lightning_beat_min_volume = config
+        .get("NA_LN_BEAT_MINVOLUME")
+        .map(|v| {
+            v.as_float().expect("NA_LN_BEAT_MINVOLUME must be a float")
+        })
+        .unwrap_or(1.0) as f32;
+    info!("NA_LN_BEAT_MINVOLUME = {}s", lightning_beat_min_volume);
 
     let lightning_timeout = config
         .get("NA_LN_TIMEOUT")
@@ -540,20 +564,36 @@ pub fn visualizer(
                 let fact = i as f32 / display_columns as f32 * 5.0 + 1.0;
                 let left = ai.columns_left[i];
                 let right = ai.columns_right[i];
-                accumulate_buffer.0[i] =
-                    f32::max(accumulate_buffer.0[i], left * fact);
-                accumulate_buffer.1[i] =
-                    f32::max(accumulate_buffer.1[i], right * fact);
+                accumulate_buffer.0[i] = f32::max(accumulate_buffer.0[i], left * fact);
+                accumulate_buffer.1[i] = f32::max(accumulate_buffer.1[i], right * fact);
             }
             let mut current_volume = 0.0;
-            let max_l = ai.raw_spectrum_left.iter().map(|f| { current_volume += f; f }).cloned().fold(0. / 0., f32::max).max(1.0);
-            let max_r = ai.raw_spectrum_right.iter().map(|f| { current_volume += f; f }).cloned().fold( 0. / 0., f32::max).max(1.0);
+            let max_l = ai.raw_spectrum_left
+                .iter()
+                .map(|f| {
+                    current_volume += f;
+                    f
+                })
+                .cloned()
+                .fold(0. / 0., f32::max)
+                .max(lightning_beat_min_volume);
+            let max_r = ai.raw_spectrum_right
+                .iter()
+                .map(|f| {
+                    current_volume += f;
+                    f
+                })
+                .cloned()
+                .fold(0. / 0., f32::max)
+                .max(lightning_beat_min_volume);
             volume = volume.max(current_volume / ai.raw_spectrum_left.len() as f32 / 2.0);
-            let is_beat = lightning_beat_columns.iter().map(|&(c, s)| (ai.raw_spectrum_left[c] / max_l + ai.raw_spectrum_right[c] / max_r) / 2.0 > s).collect::<Vec<bool>>();
-            (
-                (ai.columns_left[1] + ai.columns_right[1]) / 2.0,
-                is_beat,
-            )
+            let is_beat = lightning_beat_columns
+                .iter()
+                .map(|&(c, s)| {
+                    (ai.raw_spectrum_left[c] / max_l + ai.raw_spectrum_right[c] / max_r) / 2.0 > s
+                })
+                .collect::<Vec<bool>>();
+            ((ai.columns_left[1] + ai.columns_right[1]) / 2.0, is_beat)
         };
 
         if (time - last_lightning) > lightning_timeout {

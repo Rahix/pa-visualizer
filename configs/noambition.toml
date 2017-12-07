@@ -62,15 +62,21 @@ NA_LN_SIZE_DF = 1.2
 # Minimum time between lightnings
 NA_LN_TIMEOUT = 0.06
 
+NA_LN_BEAT_MINVOLUME = 70.0
+
 # What spectrum columns to watch for the beat
 [[NA_LN_BEAT_COLS]]
 c = 16
-s = 0.16
+s = 0.25
+
+[[NA_LN_BEAT_COLS]]
+c = 16
+s = 0.35
 
 [[NA_LN_BEAT_COLS]]
 c = 25
-s = 0.2
+s = 0.5
 
 [[NA_LN_BEAT_COLS]]
 c = 40
-s = 0.1
+s = 0.16
