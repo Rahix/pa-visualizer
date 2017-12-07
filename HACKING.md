@@ -22,12 +22,8 @@ pub fn visualizer(
         .unwrap_or(50) as usize;
     info!("DISPLAY_COLUMNS = {}", display_columns);
 
-    // Visualizer goes here. audio_info contains spectrum_left
-    // and spectrum_right, two vectors of frequency buckets.
-    // All of my visualizers only use the first display_columns
-    // elements of these, but this is not a necessity.
-    // Note that the first element of both vectors is always 0,
-    // so I advise ignoring it
+    // Visualizer goes here. For documentation on audio_info,
+    // please take a look at framework/src/spectralizer.rs
     error!("No visualizer here, yet :/");
 }
 

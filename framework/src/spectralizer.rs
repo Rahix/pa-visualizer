@@ -13,9 +13,13 @@ pub struct AudioInfo {
     pub columns_right: Vec<f32>,
 
     /// Raw left channel spectrum
+    /// Warning: This data is not normalized, you have
+    /// to take care of that yourself!
     pub raw_spectrum_left: Vec<f32>,
 
     /// Raw right channel spectrum
+    /// Warning: This data is not normalized, you have
+    /// to take care of that yourself!
     pub raw_spectrum_right: Vec<f32>,
 }
 
