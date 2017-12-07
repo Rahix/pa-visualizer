@@ -536,20 +536,19 @@ pub fn visualizer(
 
         let (beat, is_beat) = {
             let ai = audio_info.read().expect("Couldn't read audio info");
-            let mut current_volume = 0.0;
             for i in 0..display_columns {
                 let fact = i as f32 / display_columns as f32 * 5.0 + 1.0;
                 let left = ai.columns_left[i];
                 let right = ai.columns_right[i];
-                current_volume += left + right;
                 accumulate_buffer.0[i] =
                     f32::max(accumulate_buffer.0[i], left * fact);
                 accumulate_buffer.1[i] =
                     f32::max(accumulate_buffer.1[i], right * fact);
             }
-            volume = volume.max(current_volume / display_columns as f32 / 2.0);
-            let max_l = ai.raw_spectrum_left.iter().cloned().fold(0. / 0., f32::max).max(1.0);
-            let max_r = ai.raw_spectrum_right.iter().cloned().fold( 0. / 0., f32::max).max(1.0);
+            let mut current_volume = 0.0;
+            let max_l = ai.raw_spectrum_left.iter().map(|f| { current_volume += f; f }).cloned().fold(0. / 0., f32::max).max(1.0);
+            let max_r = ai.raw_spectrum_right.iter().map(|f| { current_volume += f; f }).cloned().fold( 0. / 0., f32::max).max(1.0);
+            volume = volume.max(current_volume / ai.raw_spectrum_left.len() as f32 / 2.0);
             let is_beat = lightning_beat_columns.iter().map(|&(c, s)| (ai.raw_spectrum_left[c] / max_l + ai.raw_spectrum_right[c] / max_r) / 2.0 > s).collect::<Vec<bool>>();
             (
                 (ai.columns_left[1] + ai.columns_right[1]) / 2.0,

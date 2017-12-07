@@ -19,7 +19,7 @@ NA_ROWS = 50
 # Movement speed
 NA_SPEED = 1.0
 NA_SPEED_DAMPEN = 0.995
-NA_SPEED_DEVIATION = 10.0
+NA_SPEED_DEVIATION = 0.5
 
 # Height of camera above the z = 0 plane
 NA_CAM_HEIGHT = 0.8
