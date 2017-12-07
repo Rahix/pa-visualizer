@@ -8,6 +8,10 @@ name = "pa-visualizer-ascii"
 path = "src/ascii.rs"
 
 [[bin]]
+name = "pa-visualizer-debug"
+path = "src/debug.rs"
+
+[[bin]]
 name = "pa-visualizer-python"
 path = "src/python.rs"
 
