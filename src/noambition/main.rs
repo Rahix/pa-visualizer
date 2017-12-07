@@ -156,6 +156,12 @@ pub fn visualizer(
         .unwrap_or(0.9) as f32;
     info!("NA_LN_DIM = {}", lightning_dim_factor);
 
+    let lightning_size_deform_factor = config
+        .get("NA_LN_SIZE_DF")
+        .map(|v| v.as_float().expect("NA_LN_SIZE_DF must be a float"))
+        .unwrap_or(1.0) as f32;
+    info!("NA_LN_SIZE_DF = {}", lightning_size_deform_factor);
+
     let lightning_size = config
         .get("NA_LN_SIZE")
         .map(|v| v.as_float().expect("NA_LN_SIZE must be a float"))
@@ -335,7 +341,7 @@ pub fn visualizer(
                 let x = -(column as f32 / (display_columns - 1) as f32 * 10.0) - mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, - base_height / 2.0, 1.0],
+                    position: [x, y, -base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
@@ -353,7 +359,7 @@ pub fn visualizer(
                 let x = column as f32 / (display_columns - 1) as f32 * 10.0 + mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, - base_height / 2.0, 1.0],
+                    position: [x, y, -base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
@@ -386,7 +392,7 @@ pub fn visualizer(
                 let x = -(column as f32 / (display_columns - 1) as f32 * 10.0) - mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, - base_height / 2.0, 1.0],
+                    position: [x, y, -base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
@@ -404,7 +410,7 @@ pub fn visualizer(
                 let x = column as f32 / (display_columns - 1) as f32 * 10.0 + mid_dist;
                 let y = row as f32 / (rows - 1) as f32 * depth;
                 v_buf.push(Vertex {
-                    position: [x, y, - base_height / 2.0, 1.0],
+                    position: [x, y, -base_height / 2.0, 1.0],
                     color: color,
                 });
                 v_buf.push(Vertex {
@@ -426,15 +432,19 @@ pub fn visualizer(
     };
 
     let mut lightning_buffers = {
-        let v_buf: Vec<Vertex> = vec![Vertex {
-            position: [0.0, 0.0, 0.0, 1.0],
-            color: [0.0, 0.0, 0.0, 0.0],
-        }; lightning_max * lightning_points_max];
+        let v_buf: Vec<Vertex> = vec![
+            Vertex {
+                position: [0.0, 0.0, 0.0, 1.0],
+                color: [0.0, 0.0, 0.0, 0.0],
+            };
+            lightning_max * lightning_points_max
+        ];
         let i_buf: Vec<u16> = vec![0u16; lightning_max * lightning_lines_max * 2];
 
         (
             glium::VertexBuffer::dynamic(&display, &v_buf).unwrap(),
-            glium::IndexBuffer::dynamic(&display, glium::index::PrimitiveType::LinesList, &i_buf).unwrap(),
+            glium::IndexBuffer::dynamic(&display, glium::index::PrimitiveType::LinesList, &i_buf)
+                .unwrap(),
             v_buf,
             i_buf,
             0, // Where to put the next lightning vertices
@@ -488,20 +498,24 @@ pub fn visualizer(
 
         let model_grid = na::Translation3::from_vector(na::Vector3::new(0.0, -offset, 0.0))
             .to_homogeneous();
-        let model_lightning = na::Translation3::from_vector(na::Vector3::new(0.0, -speed * time, 0.0))
-            .to_homogeneous();
+        let model_lightning = na::Translation3::from_vector(
+            na::Vector3::new(0.0, -speed * time, 0.0),
+        ).to_homogeneous();
 
-        let beat = {
+        let (beat, beat2) = {
             let ai = audio_info.read().expect("Couldn't read audio info");
             for i in 0..display_columns {
                 let fact = i as f32 / display_columns as f32 * 5.0 + 1.0;
-                accumulate_buffer.0[i] = f32::max(accumulate_buffer.0[i], ai.spectrum_left[i] * fact);
-                accumulate_buffer.1[i] = f32::max(accumulate_buffer.1[i], ai.spectrum_right[i] * fact);
+                accumulate_buffer.0[i] =
+                    f32::max(accumulate_buffer.0[i], ai.columns_left[i] * fact);
+                accumulate_buffer.1[i] =
+                    f32::max(accumulate_buffer.1[i], ai.columns_right[i] * fact);
             }
-            (ai.spectrum_left[1] + ai.spectrum_right[1]) / 2.0
+            ((ai.columns_left[1] + ai.columns_right[1]) / 2.0,
+            (ai.raw_spectrum_left[24] + ai.raw_spectrum_right[24]) / 2.0)
         };
 
-        if beat > lightning_sensitivity {
+        if beat2 > lightning_sensitivity {
             do_lightning = true;
         }
 
@@ -537,30 +551,22 @@ pub fn visualizer(
             for c in 0..display_columns {
                 let c2 = c * 2;
                 lines_buffers.2[c2 + offset_left].position[2] =
-                    -accumulate_buffer.0[c + 1] * amplitude_bottom -
-                        base_height / 2.0;
+                    -accumulate_buffer.0[c + 1] * amplitude_bottom - base_height / 2.0;
                 lines_buffers.2[c2 + 1 + offset_left].position[2] =
-                    accumulate_buffer.0[c + 1] * amplitude_top +
-                        base_height / 2.0;
+                    accumulate_buffer.0[c + 1] * amplitude_top + base_height / 2.0;
                 lines_buffers.2[c2 + offset_right].position[2] =
-                    -accumulate_buffer.1[c + 1] * amplitude_bottom -
-                        base_height / 2.0;
+                    -accumulate_buffer.1[c + 1] * amplitude_bottom - base_height / 2.0;
                 lines_buffers.2[c2 + 1 + offset_right].position[2] =
-                    accumulate_buffer.1[c + 1] * amplitude_top +
-                        base_height / 2.0;
+                    accumulate_buffer.1[c + 1] * amplitude_top + base_height / 2.0;
 
                 points_buffers.2[c2 + offset_left].position[2] =
-                    -accumulate_buffer.0[c + 1] * amplitude_bottom -
-                        base_height / 2.0;
+                    -accumulate_buffer.0[c + 1] * amplitude_bottom - base_height / 2.0;
                 points_buffers.2[c2 + 1 + offset_left].position[2] =
-                    accumulate_buffer.0[c + 1] * amplitude_top +
-                        base_height / 2.0;
+                    accumulate_buffer.0[c + 1] * amplitude_top + base_height / 2.0;
                 points_buffers.2[c2 + offset_right].position[2] =
-                    -accumulate_buffer.1[c + 1] * amplitude_bottom -
-                        base_height / 2.0;
+                    -accumulate_buffer.1[c + 1] * amplitude_bottom - base_height / 2.0;
                 points_buffers.2[c2 + 1 + offset_right].position[2] =
-                    accumulate_buffer.1[c + 1] * amplitude_top +
-                        base_height / 2.0;
+                    accumulate_buffer.1[c + 1] * amplitude_top + base_height / 2.0;
             }
 
             // Clear buffer
@@ -585,14 +591,18 @@ pub fn visualizer(
 
             let num_points = rng.gen_range::<usize>(4, lightning_points_max);
             let num_lines = rng.gen_range::<usize>(3, lightning_lines_max);
-            let position = na::Point3::new(rng.gen_range::<f32>(-5.0, 5.0), 15.0 + speed * time, rng.gen_range::<f32>(-2.0, 2.0));
+            let position = na::Point3::new(
+                rng.gen_range::<f32>(-2.5, 2.5),
+                5.0 + speed * time,
+                rng.gen_range::<f32>(-1.0, 1.0),
+            );
             let max_points = lightning_max * lightning_points_max;
             let max_lines = lightning_max * lightning_lines_max;
             for i in 0..num_points {
                 let mut pos = position;
-                pos.x += rng.gen_range::<f32>(-lightning_size*2.0, lightning_size*2.0);
+                pos.x += rng.gen_range::<f32>(-lightning_size * lightning_size_deform_factor, lightning_size * lightning_size_deform_factor);
                 pos.y += rng.gen_range::<f32>(-lightning_size, lightning_size);
-                pos.z += rng.gen_range::<f32>(-lightning_size*0.5, lightning_size*0.5);
+                pos.z += rng.gen_range::<f32>(-lightning_size / lightning_size_deform_factor, lightning_size / lightning_size_deform_factor);
                 lightning_buffers.2[(lightning_buffers.4 + i) % max_points] = Vertex {
                     position: Into::<[f32; 4]>::into(pos.to_homogeneous()),
                     color: [0.3, 0.4, 1.0, 0.8],
@@ -601,11 +611,13 @@ pub fn visualizer(
             for i in 0..num_lines {
                 let i1 = rng.gen_range::<usize>(0, num_points);
                 let i2 = rng.gen_range::<usize>(0, num_points);
-                lightning_buffers.3[(lightning_buffers.5 + i*2) % max_lines] = ((lightning_buffers.4 + i1) % max_points) as u16;
-                lightning_buffers.3[(lightning_buffers.5 + i*2 + 1) % max_lines] = ((lightning_buffers.4 + i2) % max_points) as u16;
+                lightning_buffers.3[(lightning_buffers.5 + i * 2) % max_lines] =
+                    ((lightning_buffers.4 + i1) % max_points) as u16;
+                lightning_buffers.3[(lightning_buffers.5 + i * 2 + 1) % max_lines] =
+                    ((lightning_buffers.4 + i2) % max_points) as u16;
             }
             lightning_buffers.4 = (lightning_buffers.4 + num_points) % max_points;
-            lightning_buffers.5 = (lightning_buffers.5 + num_lines*2) % max_lines;
+            lightning_buffers.5 = (lightning_buffers.5 + num_lines * 2) % max_lines;
             // Only update index buffer, vertex buffer is updated further down
             lightning_buffers.1.write(&lightning_buffers.3);
 

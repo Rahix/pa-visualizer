@@ -23,7 +23,7 @@ out vec4 fg_color;
 // The compiler is a dunce I tells-ya!!
 #define GOLDEN_ANGLE 2.39996
 
-#define ITERATIONS 40
+#define ITERATIONS 80
 
 mat2 rot = mat2(cos(GOLDEN_ANGLE), sin(GOLDEN_ANGLE), -sin(GOLDEN_ANGLE), cos(GOLDEN_ANGLE));
 
