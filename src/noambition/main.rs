@@ -174,6 +174,12 @@ pub fn visualizer(
         .unwrap_or(0.7) as f32;
     info!("NA_LN_SENSITIVITY = {}", lightning_sensitivity);
 
+    let lightning_beat_column = config
+        .get("NA_LN_BEAT_COL")
+        .map(|v| v.as_integer().expect("NA_LN_BEAT_COL must be an integer"))
+        .unwrap_or(16) as usize;
+    info!("NA_LN_BEAT_COL = {}", lightning_beat_column);
+
     let lightning_timeout = config
         .get("NA_LN_TIMEOUT")
         .map(|v| v.as_float().expect("NA_LN_TIMEOUT must be a float"))
@@ -511,8 +517,10 @@ pub fn visualizer(
                 accumulate_buffer.1[i] =
                     f32::max(accumulate_buffer.1[i], ai.columns_right[i] * fact);
             }
+            let max_l = ai.raw_spectrum_left.iter().cloned().fold(0./0., f32::max);
+            let max_r = ai.raw_spectrum_right.iter().cloned().fold(0./0., f32::max);
             ((ai.columns_left[1] + ai.columns_right[1]) / 2.0,
-            (ai.raw_spectrum_left[24] + ai.raw_spectrum_right[24]) / 2.0)
+            (ai.raw_spectrum_left[lightning_beat_column] / max_l + ai.raw_spectrum_right[lightning_beat_column] / max_r) / 2.0)
         };
 
         if beat2 > lightning_sensitivity {
