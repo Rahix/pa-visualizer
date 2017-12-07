@@ -20,7 +20,7 @@ NA_ROWS = 50
 NA_SPEED = 3.0
 
 # Height of camera above the z = 0 plane
-NA_CAM_HEIGHT = 0.4
+NA_CAM_HEIGHT = 0.8
 
 # Minimum height of grid lines
 NA_BASE_HEIGHT = 0.2
@@ -41,10 +41,10 @@ NA_DEPTH = 30.0
 NA_LN_MAX = 15
 
 # Maximum number of points per lightning
-NA_LN_PMAX = 6
+NA_LN_PMAX = 10
 
 # Maximum number of lines per lightning
-NA_LN_LMAX = 10
+NA_LN_LMAX = 26
 
 # Factor for dimming the lightning
 # Lower is faster
@@ -57,11 +57,18 @@ NA_LN_SIZE = 1.0
 # Higher means more width and less height
 NA_LN_SIZE_DF = 1.2
 
-# Beat detection sensitivity
-NA_LN_SENSITIVITY = 0.35
-
-# What spectrum column to watch for the beat
-NA_LN_BEAT_COL = 16
-
 # Minimum time between lightnings
 NA_LN_TIMEOUT = 0.06
+
+# What spectrum columns to watch for the beat
+[[NA_LN_BEAT_COLS]]
+c = 16
+s = 0.16
+
+[[NA_LN_BEAT_COLS]]
+c = 25
+s = 0.2
+
+[[NA_LN_BEAT_COLS]]
+c = 40
+s = 0.1

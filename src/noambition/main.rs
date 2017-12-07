@@ -168,25 +168,27 @@ pub fn visualizer(
         .unwrap_or(1.0) as f32;
     info!("NA_LN_SIZE = {}", lightning_size);
 
-    let lightning_sensitivity = config
-        .get("NA_LN_SENSITIVITY")
-        .map(|v| v.as_float().expect("NA_LN_SENSITIVITY must be a float"))
-        .unwrap_or(0.7) as f32;
-    info!("NA_LN_SENSITIVITY = {}", lightning_sensitivity);
-
-    let lightning_beat_column = config
-        .get("NA_LN_BEAT_COL")
-        .map(|v| {
-            v.as_integer().expect("NA_LN_BEAT_COL must be an integer")
+    let lightning_beat_columns = config
+        .get("NA_LN_BEAT_COLS")
+        .map(|a| {
+            a.as_array().expect("NA_LN_BEAT_COLS must be an array").iter()
+                .map(|t| { let table = t.as_table().expect("NA_LN_BEAT_COLS must be an array of tables");
+                    (
+                        table.get("c").expect("NA_LN_BEAT_COLS element is missing \"c\" (column)")
+                            .as_integer().expect("NA_LN_BEAT_COLS element \"c\" must be an integer") as usize,
+                        table.get("s").expect("NA_LN_BEAT_COLS element is missing \"s\" (sensitivity)")
+                            .as_float().expect("NA_LN_BEAT_COLS element \"s\" must be a float") as f32,
+                    )
+                }).collect()
         })
-        .unwrap_or(16) as usize;
-    info!("NA_LN_BEAT_COL = {}", lightning_beat_column);
+        .unwrap_or(vec![(16usize, 0.35)]);
+    info!("NA_LN_BEAT_COL = {:?}", lightning_beat_columns);
 
     let lightning_timeout = config
         .get("NA_LN_TIMEOUT")
         .map(|v| v.as_float().expect("NA_LN_TIMEOUT must be a float"))
         .unwrap_or(1.0) as f32;
-    info!("NA_LN_TIMEOUT = {}", lightning_timeout);
+    info!("NA_LN_TIMEOUT = {}s", lightning_timeout);
 
     let mut events_loop = glutin::EventsLoop::new();
 
@@ -493,6 +495,8 @@ pub fn visualizer(
 
     let start_time = ::std::time::Instant::now();
 
+    let mut is_beat_previous = vec![false; lightning_beat_columns.len()];
+
     'mainloop: loop {
         use glium::Surface;
 
@@ -510,7 +514,7 @@ pub fn visualizer(
             na::Vector3::new(0.0, -speed * time, 0.0),
         ).to_homogeneous();
 
-        let (beat, beat2) = {
+        let (beat, is_beat) = {
             let ai = audio_info.read().expect("Couldn't read audio info");
             for i in 0..display_columns {
                 let fact = i as f32 / display_columns as f32 * 5.0 + 1.0;
@@ -520,20 +524,24 @@ pub fn visualizer(
                     f32::max(accumulate_buffer.1[i], ai.columns_right[i] * fact);
             }
             let max_l = ai.raw_spectrum_left.iter().cloned().fold(0. / 0., f32::max);
-            let max_r = ai.raw_spectrum_right.iter().cloned().fold(
-                0. / 0.,
-                f32::max,
-            );
+            let max_r = ai.raw_spectrum_right.iter().cloned().fold( 0. / 0., f32::max);
+            let is_beat = lightning_beat_columns.iter().map(|&(c, s)| (ai.raw_spectrum_left[c] / max_l + ai.raw_spectrum_right[c] / max_r) / 2.0 > s).collect::<Vec<bool>>();
             (
                 (ai.columns_left[1] + ai.columns_right[1]) / 2.0,
-                (ai.raw_spectrum_left[lightning_beat_column] / max_l +
-                     ai.raw_spectrum_right[lightning_beat_column] / max_r) / 2.0,
+                is_beat,
             )
         };
 
-        if beat2 > lightning_sensitivity {
-            do_lightning = true;
+        if (time - last_lightning) > lightning_timeout {
+            for (current, previous) in is_beat.iter().zip(is_beat_previous.iter()) {
+                if *current == true && *previous == false {
+                    do_lightning = true;
+                    break;
+                }
+            }
         }
+
+        is_beat_previous = is_beat;
 
         if previous_offset > offset {
             // We are jumping this frame
@@ -602,7 +610,7 @@ pub fn visualizer(
         }
 
         // Lightning
-        if do_lightning && (time - last_lightning > lightning_timeout) {
+        if do_lightning {
             use rand::Rng;
 
             let num_points = rng.gen_range::<usize>(4, lightning_points_max);
