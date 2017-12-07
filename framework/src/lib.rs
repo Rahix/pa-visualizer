@@ -11,7 +11,14 @@ mod spectralizer;
 pub use spectralizer::AudioInfo;
 
 // Start the framework
-pub fn start<P: AsRef<std::path::Path>, F: Fn(::std::sync::Arc<toml::Value>, ::std::sync::Arc<::std::sync::RwLock<AudioInfo>>)>(cfg: P, visualizer: F) {
+pub fn start<
+    P: AsRef<std::path::Path>,
+    F: Fn(::std::sync::Arc<toml::Value>,
+       ::std::sync::Arc<::std::sync::RwLock<AudioInfo>>),
+>(
+    cfg: P,
+    visualizer: F,
+) {
     use rb::RB;
 
     let config = {
@@ -23,11 +30,18 @@ pub fn start<P: AsRef<std::path::Path>, F: Fn(::std::sync::Arc<toml::Value>, ::s
             .read_to_string(&mut cfg_string)
             .expect("Can't read config file contents");
 
-        std::sync::Arc::new(cfg_string.parse::<toml::Value>().expect("Can't parse config file"))
+        std::sync::Arc::new(cfg_string.parse::<toml::Value>().expect(
+            "Can't parse config file",
+        ))
     };
 
-    let buffer_size = config.get("RECORD_BUFFER_SIZE")
-        .map(|v| v.as_integer().expect("RECORD_BUFFER_SIZE must be an integer"))
+    let buffer_size = config
+        .get("RECORD_BUFFER_SIZE")
+        .map(|v| {
+            v.as_integer().expect(
+                "RECORD_BUFFER_SIZE must be an integer",
+            )
+        })
         .unwrap_or(1024 * 8) as usize;
     info!("RECORD_BUFFER_SIZE = {}", buffer_size);
 
@@ -36,8 +50,10 @@ pub fn start<P: AsRef<std::path::Path>, F: Fn(::std::sync::Arc<toml::Value>, ::s
     let audio_producer = audio_buffer.producer();
 
     let audio_info = std::sync::Arc::new(std::sync::RwLock::new(spectralizer::AudioInfo {
-        spectrum_left: vec![],
-        spectrum_right: vec![],
+        columns_left: vec![],
+        columns_right: vec![],
+        raw_spectrum_left: vec![],
+        raw_spectrum_right: vec![],
     }));
 
     let config2 = config.clone();
