@@ -27,7 +27,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec3 c = texture(tex_color, fragCoord.xy / iResolution.xy).rgb;
     //declare stuff
-    const int mSize = 3;
+    const int mSize = 5;
     const int kSize = (mSize-1)/2;
     float kernel[mSize];
     vec4 final_colour = vec4(0.0);

@@ -31,10 +31,18 @@ void main() {
             vec3(0.0, sin(time*speed)*0.5+0.5, 0.0),
             vec3(-sin(time*speed)*0.5+0.5*0.2, 0.0, 1.0)
     );*/
+    float t_offset = 3.1415926;
+    float s_offset = 0.8;
     mat3 color_matrix2 = mat3(
-            vec3(0.6, 0.6, 0.6),
-            vec3(0.6, 0.6, 0.6),
-            vec3(0.6, 0.6, 1.0)
+            vec3(1.0 - (sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4,
+                    (sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4+0.2,
+                    (sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4+0.2),
+            vec3((sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4+0.2,
+                    1.0 - (sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4,
+                    (sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4+0.2),
+            vec3((sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4+0.2,
+                    (sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4+0.2,
+                    1.0)
     );
 
     vec3 color = texture(tex_color, frag_texcoord).rgb;
