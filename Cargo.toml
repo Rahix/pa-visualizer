@@ -31,6 +31,10 @@ path = "src/sfml-wirecircle.rs"
 name = "pa-visualizer-noambition"
 path = "src/noambition/main.rs"
 
+[[bin]]
+name = "pa-visualizer-noambition2"
+path = "src/noambition2/main.rs"
+
 [dependencies]
 cpython = "0.1.0"
 glium = "0.18.1"

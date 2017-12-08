@@ -35,6 +35,10 @@ Same as wireline, just "wrapping" it around a circle
 ![noambition](img/noambition.png)
 A 3d visualizer, written using glium based on the [Demo "No Ambition" by Quite & T-Rex](http://www.pouet.net/prod.php?which=69730)
 
+### noambition2 ###
+![noambition](img/noambition2.png)
+Taking the noambition shader to the next level ... Thanks to offdroid, for the suggestion ...
+
 ## License ##
 pa-visualizer licensed under either of
 
