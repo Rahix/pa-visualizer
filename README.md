@@ -4,12 +4,39 @@ pa-visualizer
 A collection of pulseaudio visualizers
 
 ## Usage ##
+
+### Live ###
 Set (using `pavucontrol` or `pactl`) the default source to the monitor of
 your speakers and start the visualizer with
 
 ```terminal
 cargo run --release --bin pa-visualizer-<visualizer-name>
 ```
+
+### Rendering ###
+pa-visualizer also supports rendering a visualization. To do so, first convert your
+audio file to a `.wav` (Format: 32 bit float, Samplerate: 8000). Then add the following
+to the config of the visualizer you want to render:
+
+```toml
+RENDER_MODE = true
+RENDER_FPS = 30.0
+RENDER_SOUNDFILE = "name-of-your-file.wav"
+RENDER_OUTPUT_DIRECTORY = "name-of-the-folder-to-put-the-frames-in"
+```
+
+Start the render by simply starting the visualizer:
+
+```terminal
+cargo run --release --bin pa-visualizer-<visualizer-name>
+```
+
+Finally, convert the images to a video, for example using the following `ffmpeg` command:
+
+```terminal
+ffmpeg -framerate 30 -i frames/%06d.png -i name-of-your-file.mp3 -c:v libx264 -preset slow -crf 22 -pix_fmt yuv420p -b:a 128k output.mp4
+```
+
 
 ## Visualizers ##
 
