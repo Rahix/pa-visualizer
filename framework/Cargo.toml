@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [dependencies]
 dft = "0.5.5"
+hound = "3.3.0"
 log = "0.3.8"
 pulse-simple = "1.0.0"
 rb = "0.3.1"

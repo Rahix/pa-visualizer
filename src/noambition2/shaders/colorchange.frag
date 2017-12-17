@@ -44,9 +44,13 @@ void main() {
                     (sin((time+t_offset)*(speed+s_offset))*0.5+0.5)*0.4+0.2,
                     1.0)
     );
-
-    vec3 color = texture(tex_color, frag_texcoord).rgb;
+    vec3 color = vec3(texture(tex_color, frag_texcoord).rgb);
     color = (color_matrix * (1.0 - beat) + color_matrix2 * beat) * color;
+
+    //color = color.b * vec3(1.0, 0.1, 0.1);
+    //color = color.b * vec3(0.2, 0.2, 1.0);
+    //color = color.b * vec3(0.5, 0.2, 1.0);
+    //color = color.b * vec3(2.0, 1.0, 0.0);
 
     fg_color = vec4(color, 1.0);
     fg_position = vec4(texture(tex_position, frag_texcoord));

@@ -8,6 +8,7 @@ extern crate toml;
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
+    mut run_mode: framework::RunMode,
 ) {
     use sfml::graphics::RenderTarget;
     use sfml::graphics::Transformable;
@@ -86,7 +87,10 @@ pub fn visualizer(
         sfml::window::Style::NONE,
         &settings,
     );
-    window.set_view(&sfml::graphics::View::new(
+    let mut render_texture = sfml::graphics::RenderTexture::new(window_width, window_height, true)
+        .unwrap();
+
+    render_texture.set_view(&sfml::graphics::View::new(
         sfml::system::Vector2::new(0.0, 0.0),
         sfml::system::Vector2::new(2.2, 2.2),
     ));
@@ -113,56 +117,75 @@ pub fn visualizer(
             }
         }
 
-        let ai = audio_info.read().expect("Couldn't read audio info");
+        {
+            let ai = audio_info.read().expect("Couldn't read audio info");
 
-        window.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
+            //window.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
+            render_texture.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
 
-        let factor = if right_channel_middle { 1.0 } else { 2.0 };
-        let offset = if right_channel_middle { -0.01 } else { 1.0 };
+            let factor = if right_channel_middle { 1.0 } else { 2.0 };
+            let offset = if right_channel_middle { -0.01 } else { 1.0 };
 
-        for si in 0..display_columns {
-            //let reshape = ((si as f32) / (display_columns as f32)).sqrt();
-            let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
-            let vl = ai.columns_left[si] * reshape;
-            let size = vl * factor;
-            rect.set_size((width, size));
-            if symmetric {
-                rect.set_position((
-                    1.0 - (si as f32 / display_columns as f32) - 1.0,
-                    -size / 2.0,
-                ));
-            } else {
-                rect.set_position((
-                    2.0 * (si as f32 / display_columns as f32) - 1.0,
-                    -size + offset,
-                ));
-            }
-            if si % 2 == right_channel_color_offset as usize {
-                rect.set_fill_color(&c1);
-            } else {
-                rect.set_fill_color(&c2);
-            }
-            window.draw(&rect);
-            if right_channel || symmetric {
-                let vr = ai.columns_right[si] * reshape;
-                let size = vr * factor;
+            for si in 0..display_columns {
+                //let reshape = ((si as f32) / (display_columns as f32)).sqrt();
+                let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
+                let vl = ai.columns_left[si] * reshape;
+                let size = vl * factor;
                 rect.set_size((width, size));
                 if symmetric {
-                    rect.set_position(((si as f32 / display_columns as f32), -size / 2.0));
+                    rect.set_position((
+                        1.0 - (si as f32 / display_columns as f32) - 1.0,
+                        -size / 2.0,
+                    ));
                 } else {
-                    rect.set_position((2.0 * (si as f32 / display_columns as f32) - 1.0, -offset));
+                    rect.set_position((
+                        2.0 * (si as f32 / display_columns as f32) - 1.0,
+                        -size + offset,
+                    ));
                 }
-                if si % 2 == 0 {
+                if si % 2 == right_channel_color_offset as usize {
                     rect.set_fill_color(&c1);
                 } else {
                     rect.set_fill_color(&c2);
                 }
-                window.draw(&rect);
+                //window.draw(&rect);
+                render_texture.draw(&rect);
+                if right_channel || symmetric {
+                    let vr = ai.columns_right[si] * reshape;
+                    let size = vr * factor;
+                    rect.set_size((width, size));
+                    if symmetric {
+                        rect.set_position(((si as f32 / display_columns as f32), -size / 2.0));
+                    } else {
+                        rect.set_position(
+                            (2.0 * (si as f32 / display_columns as f32) - 1.0, -offset),
+                        );
+                    }
+                    if si % 2 == 0 {
+                        rect.set_fill_color(&c1);
+                    } else {
+                        rect.set_fill_color(&c2);
+                    }
+                    //window.draw(&rect);
+                    render_texture.draw(&rect);
+                }
             }
         }
 
+        render_texture.display();
+        window.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
+        let sprite = sfml::graphics::Sprite::with_texture(render_texture.texture());
+        window.draw(&sprite);
         window.display();
-        ::std::thread::sleep(::std::time::Duration::from_millis(25));
+        if let framework::RunMode::Rendering(ref mut render_info) = run_mode {
+            let img = render_texture.texture().copy_to_image().unwrap();
+            img.save_to_file(&format!(
+                "{}/{:06}.png",
+                render_info.outdir,
+                render_info.frame
+            ));
+        }
+        framework::sleep(&mut run_mode);
     }
 }
 

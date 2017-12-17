@@ -1,2 +1,4 @@
 /target/
+/output/
 **/*.rs.bk
+*.wav

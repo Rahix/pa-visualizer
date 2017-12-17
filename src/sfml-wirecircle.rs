@@ -8,6 +8,7 @@ extern crate toml;
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
+    mut run_mode: framework::RunMode,
 ) {
     use sfml::graphics::RenderTarget;
 
@@ -42,7 +43,10 @@ pub fn visualizer(
         sfml::window::Style::NONE,
         &settings,
     );
-    window.set_view(&sfml::graphics::View::new(
+
+    let mut render_texture = sfml::graphics::RenderTexture::new(window_width, window_height, true)
+        .unwrap();
+    render_texture.set_view(&sfml::graphics::View::new(
         sfml::system::Vector2::new(0.0, 0.0),
         sfml::system::Vector2::new(
             2.2 / window_height as f32 * window_width as f32,
@@ -66,93 +70,110 @@ pub fn visualizer(
             }
         }
 
-        let ai = audio_info.read().expect("Couldn't read audio info");
+        {
+            let ai = audio_info.read().expect("Couldn't read audio info");
 
-        window.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
+            render_texture.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
 
-        let factor = 0.3;
-        let radius = 0.6;
+            let factor = 0.3;
+            let radius = 0.6;
 
-        vertex_array_top.clear();
-        vertex_array_bottom.clear();
-        vertex_array_ttb.clear();
+            vertex_array_top.clear();
+            vertex_array_bottom.clear();
+            vertex_array_ttb.clear();
 
-        // Right
-        for si in 0..display_columns {
-            let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
+            // Right
+            for si in 0..display_columns {
+                let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
 
 
-            let angle = si as f32 / (display_columns * 2 - 2) as f32 * 2.0 *
-                ::std::f32::consts::PI - ::std::f32::consts::PI / 2.0;
+                let angle = si as f32 / (display_columns * 2 - 2) as f32 * 2.0 *
+                    ::std::f32::consts::PI -
+                    ::std::f32::consts::PI / 2.0;
 
-            let vr = ai.columns_right[si] * reshape;
-            let size = vr * factor;
-            vertex_array_top.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius + size),
-                angle.sin() * (radius + size),
-            )));
-            vertex_array_bottom.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius - size),
-                angle.sin() * (radius - size),
-            )));
+                let vr = ai.columns_right[si] * reshape;
+                let size = vr * factor;
+                vertex_array_top.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius + size),
+                    angle.sin() * (radius + size),
+                )));
+                vertex_array_bottom.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius - size),
+                    angle.sin() * (radius - size),
+                )));
 
-            vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius + size),
-                angle.sin() * (radius + size),
-            )));
-            vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius - size),
-                angle.sin() * (radius - size),
-            )));
+                vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius + size),
+                    angle.sin() * (radius + size),
+                )));
+                vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius - size),
+                    angle.sin() * (radius - size),
+                )));
+            }
+
+            // Left
+            for si in 0..display_columns {
+                let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
+
+
+                let angle = (si) as f32 / (display_columns * 2 - 2) as f32 * 2.0 *
+                    ::std::f32::consts::PI +
+                    ::std::f32::consts::PI / 2.0;
+
+                let vl = ai.columns_left[display_columns - si - 1] * reshape;
+                let size = vl * factor;
+                vertex_array_top.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius + size),
+                    angle.sin() * (radius + size),
+                )));
+                vertex_array_bottom.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius - size),
+                    angle.sin() * (radius - size),
+                )));
+
+                vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius + size),
+                    angle.sin() * (radius + size),
+                )));
+                vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
+                    angle.cos() * (radius - size),
+                    angle.sin() * (radius - size),
+                )));
+            }
+
         }
-
-        // Left
-        for si in 0..display_columns {
-            let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
-
-
-            let angle = (si) as f32 / (display_columns * 2 - 2) as f32 * 2.0 *
-                ::std::f32::consts::PI + ::std::f32::consts::PI / 2.0;
-
-            let vl = ai.columns_left[display_columns - si - 1] * reshape;
-            let size = vl * factor;
-            vertex_array_top.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius + size),
-                angle.sin() * (radius + size),
-            )));
-            vertex_array_bottom.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius - size),
-                angle.sin() * (radius - size),
-            )));
-
-            vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius + size),
-                angle.sin() * (radius + size),
-            )));
-            vertex_array_ttb.push(sfml::graphics::Vertex::with_pos((
-                angle.cos() * (radius - size),
-                angle.sin() * (radius - size),
-            )));
-        }
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_top,
             sfml::graphics::PrimitiveType::LineStrip,
             sfml::graphics::RenderStates::default(),
         );
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_bottom,
             sfml::graphics::PrimitiveType::LineStrip,
             sfml::graphics::RenderStates::default(),
         );
 
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_ttb,
             sfml::graphics::PrimitiveType::Lines,
             sfml::graphics::RenderStates::default(),
         );
 
+        render_texture.display();
+        window.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
+        let sprite = sfml::graphics::Sprite::with_texture(render_texture.texture());
+        window.draw(&sprite);
         window.display();
-        ::std::thread::sleep(::std::time::Duration::from_millis(25));
+        if let framework::RunMode::Rendering(ref mut render_info) = run_mode {
+            let img = render_texture.texture().copy_to_image().unwrap();
+            img.save_to_file(&format!(
+                "{}/{:06}.png",
+                render_info.outdir,
+                render_info.frame
+            ));
+        }
+        framework::sleep(&mut run_mode);
     }
 }
 

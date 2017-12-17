@@ -11,6 +11,7 @@ extern crate toml;
 extern crate glium;
 extern crate nalgebra as na;
 extern crate rand;
+extern crate image;
 
 use glium::glutin;
 
@@ -58,6 +59,7 @@ implement_vertex!(Vertex, position, color);
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
+    mut run_mode: framework::RunMode,
 ) {
     let display_columns = config
         .get("DISPLAY_COLUMNS")
@@ -248,7 +250,7 @@ pub fn visualizer(
 
     let window = glutin::WindowBuilder::new()
         .with_dimensions(window_width, window_height)
-        .with_maximized(true)
+        .with_maximized(if let framework::RunMode::Live = run_mode { true } else { false })
         .with_decorations(false)
         //.with_fullscreen(Some(events_loop.get_primary_monitor()))
         .with_title("PulseAudio Visualizer - No Ambition");
@@ -549,7 +551,9 @@ pub fn visualizer(
         use glium::Surface;
 
         let frame_time = ::std::time::Instant::now();
-        let time = {
+        let time = if let framework::RunMode::Rendering(ref mut render_info) = run_mode {
+            render_info.frame as f32 * render_info.frame_time
+        } else {
             let t = frame_time.duration_since(start_time);
             t.as_secs() as f32 + t.subsec_nanos() as f32 * 1e-9
         };
@@ -930,7 +934,21 @@ pub fn visualizer(
         previous_offset = offset;
         previous_time = time;
 
-        ::std::thread::sleep(::std::time::Duration::from_millis(1));
+        if let framework::RunMode::Rendering(ref mut render_info) = run_mode {
+            let image: glium::texture::RawImage2d<u8> = display.read_front_buffer();
+            let image =
+                image::ImageBuffer::from_raw(image.width, image.height, image.data.into_owned())
+                    .unwrap();
+            let image = image::DynamicImage::ImageRgba8(image).flipv();
+            let mut output = std::fs::File::create(&std::path::Path::new(&format!(
+                "{}/{:06}.png",
+                render_info.outdir,
+                render_info.frame
+            ))).unwrap();
+            image.save(&mut output, image::ImageFormat::PNG).unwrap();
+        }
+        framework::sleep(&mut run_mode);
+        //::std::thread::sleep(::std::time::Duration::from_millis(1));
     }
 }
 

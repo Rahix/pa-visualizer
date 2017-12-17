@@ -8,6 +8,7 @@ extern crate toml;
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
+    mut run_mode: framework::RunMode,
 ) {
     use sfml::graphics::RenderTarget;
 
@@ -42,7 +43,10 @@ pub fn visualizer(
         sfml::window::Style::NONE,
         &settings,
     );
-    window.set_view(&sfml::graphics::View::new(
+
+    let mut render_texture = sfml::graphics::RenderTexture::new(window_width, window_height, true)
+        .unwrap();
+    render_texture.set_view(&sfml::graphics::View::new(
         sfml::system::Vector2::new(0.0, 0.0),
         sfml::system::Vector2::new(2.2, 2.2),
     ));
@@ -95,65 +99,79 @@ pub fn visualizer(
             }
         }
 
-        let ai = audio_info.read().expect("Couldn't read audio info");
+        {
+            let ai = audio_info.read().expect("Couldn't read audio info");
 
-        window.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
+            render_texture.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
 
-        let factor = 1.0;
+            let factor = 1.0;
 
-        for si in 0..display_columns {
-            let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
+            for si in 0..display_columns {
+                let reshape = 1.0; // - 1.0 / ((si as f32) / (display_columns as f32) * 10.0).exp();
 
-            let vl = ai.columns_left[si] * reshape;
-            let size = vl * factor;
-            vertex_array_left_top[si].position.y = -size / 2.0;
-            vertex_array_left_bottom[si].position.y = size / 2.0;
+                let vl = ai.columns_left[si] * reshape;
+                let size = vl * factor;
+                vertex_array_left_top[si].position.y = -size / 2.0;
+                vertex_array_left_bottom[si].position.y = size / 2.0;
 
-            vertex_array_left_ttb[si * 2].position.y = -size / 2.0;
-            vertex_array_left_ttb[si * 2 + 1].position.y = size / 2.0;
+                vertex_array_left_ttb[si * 2].position.y = -size / 2.0;
+                vertex_array_left_ttb[si * 2 + 1].position.y = size / 2.0;
 
-            let vr = ai.columns_right[si] * reshape;
-            let size = vr * factor;
-            vertex_array_right_top[si].position.y = -size / 2.0;
-            vertex_array_right_bottom[si].position.y = size / 2.0;
+                let vr = ai.columns_right[si] * reshape;
+                let size = vr * factor;
+                vertex_array_right_top[si].position.y = -size / 2.0;
+                vertex_array_right_bottom[si].position.y = size / 2.0;
 
-            vertex_array_right_ttb[si * 2].position.y = -size / 2.0;
-            vertex_array_right_ttb[si * 2 + 1].position.y = size / 2.0;
+                vertex_array_right_ttb[si * 2].position.y = -size / 2.0;
+                vertex_array_right_ttb[si * 2 + 1].position.y = size / 2.0;
+            }
         }
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_left_top[1..],
             sfml::graphics::PrimitiveType::LineStrip,
             sfml::graphics::RenderStates::default(),
         );
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_right_top[1..],
             sfml::graphics::PrimitiveType::LineStrip,
             sfml::graphics::RenderStates::default(),
         );
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_left_bottom[1..],
             sfml::graphics::PrimitiveType::LineStrip,
             sfml::graphics::RenderStates::default(),
         );
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_right_bottom[1..],
             sfml::graphics::PrimitiveType::LineStrip,
             sfml::graphics::RenderStates::default(),
         );
 
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_left_ttb,
             sfml::graphics::PrimitiveType::Lines,
             sfml::graphics::RenderStates::default(),
         );
-        window.draw_primitives(
+        render_texture.draw_primitives(
             &vertex_array_right_ttb,
             sfml::graphics::PrimitiveType::Lines,
             sfml::graphics::RenderStates::default(),
         );
 
+        render_texture.display();
+        window.clear(&sfml::graphics::Color::rgb(0x18, 0x15, 0x11));
+        let sprite = sfml::graphics::Sprite::with_texture(render_texture.texture());
+        window.draw(&sprite);
         window.display();
-        ::std::thread::sleep(::std::time::Duration::from_millis(25));
+        if let framework::RunMode::Rendering(ref mut render_info) = run_mode {
+            let img = render_texture.texture().copy_to_image().unwrap();
+            img.save_to_file(&format!(
+                "{}/{:06}.png",
+                render_info.outdir,
+                render_info.frame
+            ));
+        }
+        framework::sleep(&mut run_mode);
     }
 }
 

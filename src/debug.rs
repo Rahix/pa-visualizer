@@ -7,6 +7,7 @@ extern crate toml;
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
+    mut run_mode: framework::RunMode,
 ) {
     use std::io::Write;
 
@@ -30,15 +31,21 @@ pub fn visualizer(
     let mut f = std::fs::File::create(&filename).unwrap();
     writeln!(f, "data = [").unwrap();
     for i in 0..iterations {
-        // Output raw spectrum data every 25ms
-        let ai = audio_info.read().expect("Can't read audio info");
-        write!(f, "{:?}", ai.raw_spectrum_left).unwrap();
-        if i != (iterations - 1) {
-            writeln!(f, ",").unwrap();
-        } else {
-            writeln!(f, "];").unwrap();
+        {
+            // Output raw spectrum data every 25ms
+            let ai = audio_info.read().expect("Can't read audio info");
+            write!(f, "{:?}", ai.raw_spectrum_left).unwrap();
+            if i != (iterations - 1) {
+                writeln!(f, ",").unwrap();
+            } else {
+                writeln!(f, "];").unwrap();
+            }
         }
-        std::thread::sleep(std::time::Duration::from_millis(25));
+        if let framework::RunMode::Live = run_mode {
+            std::thread::sleep(std::time::Duration::from_millis(25));
+        } else {
+            framework::sleep(&mut run_mode);
+        }
     }
 
     info!("Done!");

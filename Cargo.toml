@@ -38,6 +38,7 @@ path = "src/noambition2/main.rs"
 [dependencies]
 cpython = "0.1.0"
 glium = "0.18.1"
+image = "0.18.0"
 log = "0.3.8"
 nalgebra = "0.13.1"
 pretty_env_logger = "0.1.1"

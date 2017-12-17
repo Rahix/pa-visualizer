@@ -8,6 +8,7 @@ extern crate toml;
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
+    _run_mode: framework::RunMode,
 ) {
 
     let display_columns = config
