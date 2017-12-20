@@ -70,6 +70,7 @@ Taking the noambition visualizer to the next level ... Thanks to offdroid, for h
 * [Gaussian Blur shader](https://www.shadertoy.com/view/XdfGDH) by mrhaircot
 * [Bokeh disc shader](https://www.shadertoy.com/view/4d2Xzw) by David Hoskins
 * [Chromatic Abberation shader](https://github.com/spite/Wagner/blob/master/fragment-shaders/chromatic-aberration-fs.glsl)
+* [FXAA shader](https://github.com/mattdesl/glsl-fxaa)
 
 ## License ##
 pa-visualizer licensed under either of

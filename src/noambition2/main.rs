@@ -353,7 +353,8 @@ pub fn visualizer(
         "shaders/postprocess.vert",
         "shaders/background.frag"
     );
-    let gauss_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/gauss.frag");
+    // let gauss_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/gauss.frag");
+    let fxaa_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/fxaa.frag");
     let bokeh_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/bokeh.frag");
     let colorchange_program = shader_program!(
         &display,
@@ -804,9 +805,9 @@ pub fn visualizer(
 
         let uniforms1 =
             uniform! {
-            tex_position: &tex_position1,
-            tex_screen_position: &tex_screen_position1,
-            tex_color: &tex_color1,
+            tex_position: tex_position1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_screen_position: tex_screen_position1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_color: tex_color1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             time: time,
             beat: beat,
             volume: volume,
@@ -815,9 +816,9 @@ pub fn visualizer(
 
         let uniforms2 =
             uniform! {
-            tex_position: &tex_position2,
-            tex_screen_position: &tex_screen_position2,
-            tex_color: &tex_color2,
+            tex_position: tex_position2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_screen_position: tex_screen_position2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_color: tex_color2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             time: time,
             beat: beat,
             volume: volume,
@@ -863,12 +864,12 @@ pub fn visualizer(
             )
             .unwrap();
 
-        // Blur pass
+        // FXAA pass
         framebuffer2
             .draw(
                 &quad_vertex_buffer,
                 &quad_index_buffer,
-                &gauss_program,
+                &fxaa_program,
                 &uniforms1,
                 &Default::default(),
             )
