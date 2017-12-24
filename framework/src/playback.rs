@@ -1,6 +1,8 @@
 pub fn playback_frame(render_info: &mut ::RenderingInfo) -> bool {
     use rb::RbProducer;
-    let n = (render_info.sample_rate as f32 * render_info.frame_time) as usize;
+    let new_sample_position = (render_info.sample_rate as f32 * render_info.frame as f32 / render_info.fps) as usize;
+    let n = new_sample_position - render_info.current_sample;
+    render_info.current_sample = new_sample_position;
     let mut buf = Vec::with_capacity(n);
     for _ in 0..n {
         if let Some(s_left) = render_info.samples.next() {

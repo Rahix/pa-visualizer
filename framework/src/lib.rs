@@ -17,6 +17,7 @@ pub struct RenderingInfo<'a> {
     pub frame_time: f32,
     pub outdir: String,
     pub frame: usize,
+    current_sample: usize,
     sample_rate: u32,
     spectralizer: spectralizer::Spectralizer,
     samples: hound::WavSamples<'a, std::io::BufReader<std::fs::File>, f32>,
@@ -134,10 +135,11 @@ pub fn start<
         let audio_info2 = audio_info.clone();
         let spectralizer = spectralizer::Spectralizer::new(config3, audio_buffer, audio_info2);
 
-        let mut render_info = RenderingInfo {
+        let render_info = RenderingInfo {
             fps: render_fps,
             frame: 0,
             frame_time: 1.0 / render_fps,
+            current_sample: 0,
             sample_rate,
             outdir,
             samples,
