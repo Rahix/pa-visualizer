@@ -783,6 +783,8 @@ pub fn visualizer(
             perspective_matrix: Into::<[[f32; 4]; 4]>::into(perspective),
             view_matrix: Into::<[[f32; 4]; 4]>::into(view),
             model_matrix: Into::<[[f32; 4]; 4]>::into(model_grid),
+            volume: volume,
+            beat: beat,
         };
         framebuffer1
             .draw(
@@ -853,6 +855,8 @@ pub fn visualizer(
             perspective_matrix: Into::<[[f32; 4]; 4]>::into(perspective),
             view_matrix: Into::<[[f32; 4]; 4]>::into(view),
             model_matrix: Into::<[[f32; 4]; 4]>::into(model_lightning),
+            volume: volume,
+            beat: beat,
         };
         framebuffer1
             .draw(
