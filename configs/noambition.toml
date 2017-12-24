@@ -80,3 +80,25 @@ s = 0.5
 [[NA_LN_BEAT_COLS]]
 c = 40
 s = 0.16
+
+# The following are for the noambition soundtrack and might not look
+# terribly good with other music
+[[NA_LN_BEAT_COLS]]
+c = 101
+s = 0.8
+
+[[NA_LN_BEAT_COLS]]
+c = 113
+s = 0.8
+
+[[NA_LN_BEAT_COLS]]
+c = 202
+s = 0.7
+
+[[NA_LN_BEAT_COLS]]
+c = 226
+s = 0.7
+
+[[NA_LN_BEAT_COLS]]
+c = 240
+s = 0.7
