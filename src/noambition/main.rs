@@ -18,7 +18,7 @@ use glium::glutin;
 macro_rules! shader_program {
     ($display:expr, $vert_file:expr, $frag_file:expr) => ({
         // Use this for debug
-        /*let vert_src = {
+        let vert_src = {
             use ::std::io::Read;
             let mut buf = String::new();
             let mut f = ::std::fs::File::open(format!("src/noambition/{}", $vert_file)).unwrap();
@@ -39,12 +39,12 @@ macro_rules! shader_program {
         glium::Program::from_source($display,
                 &vert_src,
                 &frag_src,
-                None).unwrap()*/
+                None).unwrap()
         // Use this for release
-        glium::Program::from_source($display,
+        /*glium::Program::from_source($display,
             include_str!($vert_file),
             include_str!($frag_file),
-            None).unwrap()
+            None).unwrap()*/
     })
 }
 
@@ -335,7 +335,8 @@ pub fn visualizer(
         "shaders/postprocess.vert",
         "shaders/background.frag"
     );
-    let gauss_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/gauss.frag");
+    // let gauss_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/gauss.frag");
+    let fxaa_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/fxaa.frag");
     let bokeh_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/bokeh.frag");
     let final_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/final.frag");
 
@@ -776,9 +777,9 @@ pub fn visualizer(
 
         let uniforms1 =
             uniform! {
-            tex_position: &tex_position1,
-            tex_screen_position: &tex_screen_position1,
-            tex_color: &tex_color1,
+            tex_position: tex_position1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_screen_position: tex_screen_position1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_color: tex_color1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             time: time,
             beat: beat,
             resolution: [window_width as f32, window_height as f32],
@@ -786,9 +787,9 @@ pub fn visualizer(
 
         let uniforms2 =
             uniform! {
-            tex_position: &tex_position2,
-            tex_screen_position: &tex_screen_position2,
-            tex_color: &tex_color2,
+            tex_position: tex_position2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_screen_position: tex_screen_position2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_color: tex_color2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             time: time,
             beat: beat,
             resolution: [window_width as f32, window_height as f32],
@@ -833,12 +834,12 @@ pub fn visualizer(
             )
             .unwrap();
 
-        // Blur pass
+        // FXAA pass
         framebuffer2
             .draw(
                 &quad_vertex_buffer,
                 &quad_index_buffer,
-                &gauss_program,
+                &fxaa_program,
                 &uniforms1,
                 &Default::default(),
             )
