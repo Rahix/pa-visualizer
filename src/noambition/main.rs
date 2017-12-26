@@ -776,9 +776,12 @@ pub fn visualizer(
 
         let uniforms1 =
             uniform! {
-            tex_position: tex_position1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
-            tex_screen_position: tex_screen_position1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
-            tex_color: tex_color1.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_position: tex_position1.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_screen_position: tex_screen_position1.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_color: tex_color1.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             time: time,
             beat: beat,
             resolution: [window_width as f32, window_height as f32],
@@ -786,9 +789,12 @@ pub fn visualizer(
 
         let uniforms2 =
             uniform! {
-            tex_position: tex_position2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
-            tex_screen_position: tex_screen_position2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
-            tex_color: tex_color2.sampled().wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_position: tex_position2.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_screen_position: tex_screen_position2.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_color: tex_color2.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             time: time,
             beat: beat,
             resolution: [window_width as f32, window_height as f32],
