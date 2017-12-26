@@ -8,8 +8,12 @@ extern crate toml;
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
-    _run_mode: framework::RunMode,
+    mut run_mode: framework::RunMode,
 ) {
+
+    if let framework::RunMode::Rendering(_) = run_mode {
+        warn!("Python visuallizer does not support rendering!");
+    }
 
     let display_columns = config
         .get("DISPLAY_COLUMNS")
@@ -54,25 +58,29 @@ pub fn visualizer(
     }
 
     'mainloop: loop {
-        let ai = audio_info.read().expect("Couldn't read audio info");
-
-        // Execute script
-        locals
-            .set_item(py, "__left_spectrum", &ai.columns_left)
-            .unwrap();
-        locals
-            .set_item(py, "__right_spectrum", &ai.columns_right)
-            .unwrap();
-        if !py.eval(
-            "frame(__left_spectrum, __right_spectrum)",
-            Some(&globals),
-            Some(&locals),
-        ).unwrap()
-            .extract::<bool>(py)
-            .unwrap()
         {
-            break 'mainloop;
+            let ai = audio_info.read().expect("Couldn't read audio info");
+
+            // Execute script
+            locals
+                .set_item(py, "__left_spectrum", &ai.columns_left)
+                .unwrap();
+            locals
+                .set_item(py, "__right_spectrum", &ai.columns_right)
+                .unwrap();
+            if !py.eval(
+                "frame(__left_spectrum, __right_spectrum)",
+                Some(&globals),
+                Some(&locals),
+            ).unwrap()
+                .extract::<bool>(py)
+                .unwrap()
+            {
+                break 'mainloop;
+            }
         }
+
+        framework::sleep(&mut run_mode);
     }
 }
 

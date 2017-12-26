@@ -34,5 +34,5 @@ def frame(left, right):
             window.close()
             return False
 
-    time.sleep(0.02)
+    # time.sleep(0.02)
     return True
