@@ -45,6 +45,7 @@ A simple debug visualizer, printing the left and right spectra to the terminal w
 
 ### python ###
 A wrapper to write visualizers in python.
+**Does not support rendering atm!**
 
 ### sfml-simple ###
 ![sfml-simple](img/sfml-simple.png)
@@ -64,7 +65,7 @@ A 3d visualizer, written using glium based on the [Demo "No Ambition" by Quite &
 
 ### noambition2 ###
 ![noambition](img/noambition2.png)
-Taking the noambition visualizer to the next level ... Thanks to offdroid, for help with implementing this ...
+Taking the noambition visualizer to the 'next' level ... Thanks to offdroid, for help with implementing this ...
 
 ## Shaders used ###
 * [Bokeh disc shader](https://www.shadertoy.com/view/4d2Xzw) by David Hoskins
