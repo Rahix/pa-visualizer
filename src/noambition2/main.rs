@@ -353,7 +353,6 @@ pub fn visualizer(
         "shaders/postprocess.vert",
         "shaders/background.frag"
     );
-    // let gauss_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/gauss.frag");
     let fxaa_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/fxaa.frag");
     let bokeh_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/bokeh.frag");
     let colorchange_program = shader_program!(
