@@ -64,7 +64,7 @@ impl Spectralizer {
         let max_dampen = config
             .get("MAX_DAMPEN")
             .map(|v| v.as_float().expect("MAX_DAMPEN must be a float"))
-            .unwrap_or(0.95) as f32;
+            .unwrap_or(0.99) as f32;
         info!("MAX_DAMPEN = {}", max_dampen);
 
         let dampen = config

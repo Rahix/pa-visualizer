@@ -66,7 +66,7 @@ pub fn visualizer(
         .map(|v| {
             v.as_integer().expect("DISPLAY_COLUMNS must be an integer")
         })
-        .unwrap_or(50) as usize;
+        .unwrap_or(20) as usize;
     info!("DISPLAY_COLUMNS = {}", display_columns);
     let display_columns = display_columns - 1;
 
@@ -75,43 +75,43 @@ pub fn visualizer(
         .map(|v| {
             v.as_integer().expect("WINDOW_HEIGHT must be an integer")
         })
-        .unwrap_or(900) as u32;
+        .unwrap_or(720) as u32;
     info!("WINDOW_HEIGHT = {}", window_height);
 
     let window_width = config
         .get("WINDOW_WIDTH")
         .map(|v| v.as_integer().expect("WINDOW_WIDTH must be an integer"))
-        .unwrap_or(900) as u32;
+        .unwrap_or(1280) as u32;
     info!("WINDOW_WIDTH = {}", window_width);
 
     let rows = config
         .get("NA_ROWS")
         .map(|v| v.as_integer().expect("NA_ROWS must be an integer"))
-        .unwrap_or(100) as usize;
+        .unwrap_or(50) as usize;
     info!("NA_ROWS = {}", rows);
 
     let base_height = config
         .get("NA_BASE_HEIGHT")
         .map(|v| v.as_float().expect("NA_BASE_HEIGHT must be a float"))
-        .unwrap_or(0.5) as f32;
+        .unwrap_or(0.2) as f32;
     info!("NA_BASE_HEIGHT = {}", base_height);
 
     let amplitude_top = config
         .get("NA_AMPLITUDE_TOP")
         .map(|v| v.as_float().expect("NA_AMPLITUDE_TOP must be a float"))
-        .unwrap_or(0.5) as f32;
+        .unwrap_or(0.7) as f32;
     info!("NA_AMPLITUDE_TOP = {}", amplitude_top);
 
     let cam_height = config
         .get("NA_CAM_HEIGHT")
         .map(|v| v.as_float().expect("NA_CAM_HEIGHT must be a float"))
-        .unwrap_or(1.0) as f32;
+        .unwrap_or(0.8) as f32;
     info!("NA_CAM_HEIGHT = {}", cam_height);
 
     let shake = config
         .get("NA_SHAKE")
         .map(|v| v.as_float().expect("NA_SHAKE must be a float"))
-        .unwrap_or(0.1) as f32;
+        .unwrap_or(0.06) as f32;
     info!("NA_SHAKE = {}", shake);
 
     let fov_min = config
@@ -131,13 +131,13 @@ pub fn visualizer(
         .map(|v| {
             v.as_float().expect("NA_AMPLITUDE_BOTTOM must be a float")
         })
-        .unwrap_or(0.5) as f32;
+        .unwrap_or(0.1) as f32;
     info!("NA_AMPLITUDE_BOTTOM = {}", amplitude_bottom);
 
     let mid_dist = config
         .get("NA_MID_DISTANCE")
         .map(|v| v.as_float().expect("NA_MID_DISTANCE must be a float"))
-        .unwrap_or(0.5) as f32;
+        .unwrap_or(0.3) as f32;
     info!("NA_MID_DISTANCE = {}", mid_dist);
 
     let base_speed = config
@@ -149,7 +149,7 @@ pub fn visualizer(
     let speed_dampen = config
         .get("NA_SPEED_DAMPEN")
         .map(|v| v.as_float().expect("NA_SPEED_DAMPEN must be a float"))
-        .unwrap_or(0.99) as f32;
+        .unwrap_or(0.995) as f32;
     info!("NA_SPEED_DAMPEN = {}", speed_dampen);
 
     let speed_deviation = config
@@ -157,7 +157,7 @@ pub fn visualizer(
         .map(|v| {
             v.as_float().expect("NA_SPEED_DEVIATION must be a float")
         })
-        .unwrap_or(1.0) as f32;
+        .unwrap_or(0.5) as f32;
     info!("NA_SPEED_DEVIATION = {}", speed_deviation);
 
     let depth = config
@@ -169,31 +169,31 @@ pub fn visualizer(
     let lightning_max = config
         .get("NA_LN_MAX")
         .map(|v| v.as_integer().expect("NA_LN_MAX must be an integer"))
-        .unwrap_or(10) as usize;
+        .unwrap_or(15) as usize;
     info!("NA_LN_MAX = {}", lightning_max);
 
     let lightning_points_max = config
         .get("NA_LN_PMAX")
         .map(|v| v.as_integer().expect("NA_LN_PMAX must be an integer"))
-        .unwrap_or(6) as usize;
+        .unwrap_or(10) as usize;
     info!("NA_LN_PMAX = {}", lightning_points_max);
 
     let lightning_lines_max = config
         .get("NA_LN_LMAX")
         .map(|v| v.as_integer().expect("NA_LN_LMAX must be an integer"))
-        .unwrap_or(8) as usize;
+        .unwrap_or(26) as usize;
     info!("NA_LN_LMAX = {}", lightning_lines_max);
 
     let lightning_dim_factor = config
         .get("NA_LN_DIM")
         .map(|v| v.as_float().expect("NA_LN_DIM must be a float"))
-        .unwrap_or(0.9) as f32;
+        .unwrap_or(0.95) as f32;
     info!("NA_LN_DIM = {}", lightning_dim_factor);
 
     let lightning_size_deform_factor = config
         .get("NA_LN_SIZE_DF")
         .map(|v| v.as_float().expect("NA_LN_SIZE_DF must be a float"))
-        .unwrap_or(1.0) as f32;
+        .unwrap_or(1.2) as f32;
     info!("NA_LN_SIZE_DF = {}", lightning_size_deform_factor);
 
     let lightning_size = config
@@ -229,7 +229,7 @@ pub fn visualizer(
                 })
                 .collect()
         })
-        .unwrap_or(vec![(16usize, 0.35)]);
+        .unwrap_or(vec![(16usize, 0.25)]);
     info!("NA_LN_BEAT_COL = {:?}", lightning_beat_columns);
 
     let lightning_beat_min_volume = config
@@ -237,13 +237,13 @@ pub fn visualizer(
         .map(|v| {
             v.as_float().expect("NA_LN_BEAT_MINVOLUME must be a float")
         })
-        .unwrap_or(1.0) as f32;
+        .unwrap_or(70.0) as f32;
     info!("NA_LN_BEAT_MINVOLUME = {}s", lightning_beat_min_volume);
 
     let lightning_timeout = config
         .get("NA_LN_TIMEOUT")
         .map(|v| v.as_float().expect("NA_LN_TIMEOUT must be a float"))
-        .unwrap_or(1.0) as f32;
+        .unwrap_or(0.06) as f32;
     info!("NA_LN_TIMEOUT = {}s", lightning_timeout);
 
     let mut events_loop = glutin::EventsLoop::new();

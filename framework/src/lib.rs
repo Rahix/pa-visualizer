@@ -64,7 +64,7 @@ pub fn start<
                 "RECORD_BUFFER_SIZE must be an integer",
             )
         })
-        .unwrap_or(1024 * 8) as usize;
+        .unwrap_or(8000) as usize;
     info!("RECORD_BUFFER_SIZE = {}", buffer_size);
 
     let is_render_mode = config
@@ -123,7 +123,7 @@ pub fn start<
                     "RENDER_OUTPUT_DIRECTORY must be a string",
                 ))
             })
-            .unwrap_or(String::from("render_frames"));
+            .unwrap_or(String::from("frames"));
         info!("RENDER_OUTPUT_DIRECTORY = \"{}\"", outdir);
 
         let mut file = hound::WavReader::open(soundfile).expect("Could not open sound file");

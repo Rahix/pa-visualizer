@@ -14,7 +14,7 @@ pub fn visualizer(
     let time = config
         .get("TIME")
         .map(|v| v.as_float().expect("TIME must be a float"))
-        .unwrap_or(60.0) as f32;
+        .unwrap_or(30.0) as f32;
     info!("TIME = {}s", time);
 
     let filename = config
@@ -22,7 +22,7 @@ pub fn visualizer(
         .map(|v| {
             String::from(v.as_str().expect("FILENAME must be a string"))
         })
-        .unwrap_or(String::from("data.m"));
+        .unwrap_or(String::from("/tmtp/datafile.m"));
     info!("FILENAME = \"{}\"", filename);
 
     let iterations = (time / 0.025) as usize;

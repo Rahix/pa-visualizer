@@ -11,14 +11,14 @@ pub fn recorder(config: ::std::sync::Arc<toml::Value>, audio_producer: rb::Produ
                 "RECORD_READ_BUFFER_SIZE must be an integer",
             )
         })
-        .unwrap_or(2048) as usize;
+        .unwrap_or(100) as usize;
     info!("RECORD_READ_BUFFER_SIZE = {}", read_buffer_size);
 
     let rate = config
         .get("RECORD_RATE")
         .map(|v| v.as_integer().expect("RECORD_RATE must be an integer"))
-        .unwrap_or(48000) as u32;
-    info!("RATE = {}", rate);
+        .unwrap_or(8000) as u32;
+    info!("RECORD_RATE = {}", rate);
 
     let recorder: pulse_simple::Record<[f32; 2]> =
         pulse_simple::Record::new("PAVisualizer", "PulseAudio vizializer", None, rate);

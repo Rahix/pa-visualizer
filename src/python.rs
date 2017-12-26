@@ -20,7 +20,7 @@ pub fn visualizer(
         .map(|v| {
             v.as_integer().expect("DISPLAY_COLUMNS must be an integer")
         })
-        .unwrap_or(50) as usize;
+        .unwrap_or(20) as usize;
     info!("DISPLAY_COLUMNS = {}", display_columns);
 
     let filename = config

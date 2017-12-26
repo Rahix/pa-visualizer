@@ -25,13 +25,13 @@ pub fn visualizer(
         .map(|v| {
             v.as_integer().expect("WINDOW_HEIGHT must be an integer")
         })
-        .unwrap_or(900) as u32;
+        .unwrap_or(720) as u32;
     info!("WINDOW_HEIGHT = {}", window_height);
 
     let window_width = config
         .get("WINDOW_WIDTH")
         .map(|v| v.as_integer().expect("WINDOW_WIDTH must be an integer"))
-        .unwrap_or(900) as u32;
+        .unwrap_or(1280) as u32;
     info!("WINDOW_WIDTH = {}", window_width);
 
     let mut settings = sfml::window::ContextSettings::default();
