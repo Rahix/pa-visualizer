@@ -4,7 +4,6 @@ extern crate framework;
 #[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
-extern crate sfml;
 extern crate toml;
 
 #[macro_use]
