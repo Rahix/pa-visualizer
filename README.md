@@ -67,10 +67,15 @@ A 3d visualizer, written using glium based on the [Demo "No Ambition" by Quite &
 ![noambition](img/noambition2.png)
 Taking the noambition visualizer to the 'next' level ... Thanks to offdroid, for help with implementing this ...
 
-## Shaders used ###
+## Stuff used in this project ##
+
+### Shaders ###
 * [Bokeh disc shader](https://www.shadertoy.com/view/4d2Xzw) by David Hoskins
 * [Chromatic Abberation shader](https://github.com/spite/Wagner/blob/master/fragment-shaders/chromatic-aberration-fs.glsl)
 * [FXAA shader](https://github.com/mattdesl/glsl-fxaa)
+
+### 3D Models ###
+* [Coriolis station](https://www.thingiverse.com/thing:2402658)
 
 ## License ##
 pa-visualizer licensed under either of

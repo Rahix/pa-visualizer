@@ -35,16 +35,26 @@ path = "src/noambition/main.rs"
 name = "pa-visualizer-noambition2"
 path = "src/noambition2/main.rs"
 
+[[bin]]
+name = "pa-visualizer-space"
+path = "src/space/main.rs"
+
 [dependencies]
 cpython = "0.1.0"
 glium = "0.18.1"
 image = "0.18.0"
+lazy_static = "1.0.0"
 log = "0.3.8"
 nalgebra = "0.13.1"
+obj = "0.8.0"
 pretty_env_logger = "0.1.1"
 rand = "0.3.18"
 sfml = "0.14.0"
 toml = "0.4.5"
+
+[dependencies.eagre-ecs]
+git = "https://github.com/Rahix/eagre-ecs.git"
+optional = false
 
 [dependencies.framework]
 path = "framework/"
