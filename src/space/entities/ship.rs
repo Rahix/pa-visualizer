@@ -2,9 +2,11 @@ use ecs;
 use glium;
 use std::rc;
 use na;
+use rand;
 
 use info;
 use components;
+use entities;
 
 #[derive(Debug)]
 pub struct ShipSharedData {
@@ -26,6 +28,7 @@ pub type ShipShared = rc::Rc<ShipSharedData>;
 pub struct Ship {
     color: na::Vector3<f32>,
     shared: ShipShared,
+    mailslot_deviation: f32,
 }
 
 impl Ship {
@@ -44,10 +47,12 @@ impl Ship {
             s
         } else {
             let vbuf = glium::VertexBuffer::new(display, &vec![Vertex {
-                position: [0.0, 0.0, 0.0, 1.0],
+                position: [0.0, 0.0, 1.0, 1.0],
+            }, Vertex {
+                position: [0.0, 0.0, -1.0, 1.0],
             }]).unwrap();
 
-            let ibuf = glium::IndexBuffer::new(display, glium::index::PrimitiveType::Points, &vec![0]).unwrap();
+            let ibuf = glium::IndexBuffer::new(display, glium::index::PrimitiveType::LinesList, &vec![0, 1]).unwrap();
 
             let program = shader_program_ent!(display, "shaders/station.vert", "shaders/station.frag");
 
@@ -61,6 +66,7 @@ impl Ship {
         let s = Ship {
             color,
             shared,
+            mailslot_deviation: rand::random::<f32>() * 2.0 - 1.0,
         };
 
         sys.add(ent, s).unwrap();
@@ -81,14 +87,19 @@ impl Ship {
 
         let s = sys.borrow::<Ship>(ent).unwrap();
         let pos = sys.borrow::<components::Position>(ent).unwrap().0;
+        let vel = sys.borrow::<components::Velocity>(ent).unwrap().0;
 
-        let model = na::Translation3::from_vector(pos.coords).to_homogeneous();
+        let station = sys.borrow::<entities::Station>(info.station).unwrap().0.borrow();
+        let mailslot_vector = na::Vector3::new(0.0, -station.rotation.sin() * s.mailslot_deviation * 0.06, station.rotation.cos() * s.mailslot_deviation * 0.06);
+
+        let model = na::Similarity3::from_parts(na::Translation3::from_vector(pos.coords + mailslot_vector),
+                        na::UnitQuaternion::new_observer_frame(&na::normalize(&vel), &na::Vector3::new(0.0, 1.0, 0.0)),
+                        0.1).to_homogeneous();
 
         let ps_view = info.view * pos.to_homogeneous();
         let ps_check_point = info.perspective * na::Vector4::new(1.0, 0.0, ps_view.z, 1.0);
         let point_size = ps_check_point.x / ps_check_point.w;
-        let point_size = 2.0 + ((point_size - 0.2) / 0.2) * 8.0;
-        debug!("{}", point_size);
+        let point_size = 2.0 + ((point_size - 0.2) / 0.2) * 16.0;
 
         let uniforms =
             uniform! {

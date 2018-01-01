@@ -103,6 +103,7 @@ pub fn visualizer(
             false
         })
         .with_decorations(false)
+        .with_fullscreen(Some(events_loop.get_primary_monitor()))
         .with_title("PulseAudio Visualizer - Space");
 
     let context = glutin::ContextBuilder::new()
@@ -203,7 +204,7 @@ pub fn visualizer(
 
     let mut system = ecs::System::new();
 
-    entities::Station::create(&mut system, &display, config.clone());
+    let station_ent = entities::Station::create(&mut system, &display, config.clone());
 
     let start_time = ::std::time::Instant::now();
 
@@ -291,6 +292,8 @@ pub fn visualizer(
             is_beat,
             is_beat_previous,
             beat2,
+
+            station: station_ent,
         };
 
         if do_ship {

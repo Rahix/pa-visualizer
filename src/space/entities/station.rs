@@ -10,7 +10,7 @@ use info;
 use components;
 
 #[derive(Debug, Clone)]
-pub struct Station(rc::Rc<cell::RefCell<StationObj>>);
+pub struct Station(pub rc::Rc<cell::RefCell<StationObj>>);
 
 #[derive(Debug)]
 pub struct StationObj {
@@ -20,7 +20,7 @@ pub struct StationObj {
     vbuf2: glium::VertexBuffer<Vertex>,
     ibuf2: glium::IndexBuffer<u16>,
 
-    rotation: f32,
+    pub rotation: f32,
     color: na::Vector4<f32>,
     last_beat: f32,
     rotation_factor: f32,
@@ -169,7 +169,7 @@ impl Station {
             s.last_beat = info.time;
         }
 
-        let fact = 1.0 / (((info.time - s.last_beat) * 1.0) + 2.0);
+        let fact = 1.0 / (((info.time - s.last_beat) * 10.0) + 2.0);
         s.color.x = (1.0 - fact) * (0.4f32 * info.beat * 0.8 + 0.2) + fact * (0.2);
         s.color.y = (1.0 - fact) * (0.4 * info.beat * 0.8 + 0.2) + fact * (1.0);
         s.color.z = (1.0 - fact) * (1.0 * info.beat * 0.8 + 0.2) + fact * (0.2);

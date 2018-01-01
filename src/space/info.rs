@@ -1,4 +1,5 @@
 use na;
+use ecs;
 
 pub struct Info {
     pub time: f32,
@@ -10,4 +11,6 @@ pub struct Info {
     pub volume: f32,
     pub is_beat: Vec<bool>,
     pub is_beat_previous: Vec<bool>,
+
+    pub station: ecs::Entity,
 }

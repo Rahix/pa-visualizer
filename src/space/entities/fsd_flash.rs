@@ -38,7 +38,7 @@ impl FsdFlash {
         let f = FsdFlash {
             start_time: info.time,
         };
-        let ent = entities::Billboard::create(sys, None, display, 0.3, 0.3, info, Some(shared.program.clone()));
+        let ent = entities::Billboard::create(sys, None, display, 0.6, 0.6, info, Some(shared.program.clone()));
 
         sys.add(ent, f).unwrap();
         sys.add(ent, components::Updateable::new(FsdFlash::update)).unwrap();
