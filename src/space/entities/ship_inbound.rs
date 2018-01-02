@@ -14,12 +14,7 @@ pub struct ShipInbound {
 
 impl ShipInbound {
     pub fn create(sys: &mut ecs::System, display: &glium::Display, info: &info::Info) -> ecs::Entity {
-        let color = na::Vector3::new(
-                        rand::random::<f32>(),
-                        rand::random::<f32>(),
-                        rand::random::<f32>(),
-                    );
-        let ent = entities::Ship::create(sys, display, color);
+        let ent = entities::Ship::create(sys, display);
         let position = na::Point3::new(
                         rand::random::<f32>() * 1.0 + 0.5,
                         rand::random::<f32>() * 2.0 - 1.0,
@@ -48,14 +43,14 @@ impl ShipInbound {
             // Delete this ship if we are inside the station
             if pos.x < -1.5 {
                 sys.set(ent, components::Position(na::Point3::new(-2.0, 0.0, 0.0))).unwrap();
-                sys.set(ent, components::Velocity(na::Vector3::new(0.01, 0.0, 0.0))).unwrap();
+                sys.set(ent, components::Velocity(na::Vector3::new(0.005, 0.0, 0.0))).unwrap();
                 sys.set(ent, components::Acceleration(na::Vector3::new(1.0, 0.0, 0.0))).unwrap();
                 sys.set(ent, components::Updateable::new(entities::ShipOutbound::update)).unwrap();
                 return;
             }
             let s = sys.borrow::<ShipInbound>(ent).unwrap();
             na::normalize(&na::Vector3::new(-1.0, -pos.y*5.0, -pos.z*5.0))
-                * (2.0 / (1.0 + info.time - s.start_time) + 0.4)
+                * (1.0 / (1.0 + info.time - s.start_time) + 0.4)
         };
 
         sys.set(ent, components::Velocity(new_vel)).unwrap();

@@ -12,12 +12,7 @@ pub struct ShipOutbound;
 
 impl ShipOutbound {
     pub fn create(sys: &mut ecs::System, display: &glium::Display, info: &info::Info) -> ecs::Entity {
-        let color = na::Vector3::new(
-                        rand::random::<f32>(),
-                        rand::random::<f32>(),
-                        rand::random::<f32>(),
-                    );
-        let ent = entities::Ship::create(sys, display, color);
+        let ent = entities::Ship::create(sys, display);
 
         sys.set(ent, components::Position(na::Point3::new(-2.0, 0.0, 0.0))).unwrap();
         sys.add(ent, components::Acceleration(na::Vector3::new(2.0, 0.0, 0.0))).unwrap();
