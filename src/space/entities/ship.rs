@@ -133,11 +133,6 @@ impl Ship {
             ) * na::Similarity3::from_scaling(0.05)).to_homogeneous();
 
 
-        let ps_view = info.view * pos.to_homogeneous();
-        let ps_check_point = info.perspective * na::Vector4::new(1.0, 0.0, ps_view.z, 1.0);
-        let point_size = ps_check_point.x / ps_check_point.w;
-        let point_size = 2.0 + ((point_size - 0.2) / 0.2) * 16.0;
-
         let uniforms =
             uniform! {
             perspective_matrix: Into::<[[f32; 4]; 4]>::into(info.perspective),
@@ -152,7 +147,6 @@ impl Ship {
                 write: true,
                 ..Default::default()
             },
-            point_size: Some(point_size),
             ..Default::default()
         };
 

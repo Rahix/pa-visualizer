@@ -31,7 +31,7 @@ impl ShipOutbound {
 
     pub fn update(sys: &mut ecs::System, ent: ecs::Entity, _info: &info::Info) {
         let pos = sys.borrow::<components::Position>(ent).unwrap().0;
-        // Delete this ship if we are inside the station
+        // Delete this ship if we are gone
         if pos.x > 5.0 {
             sys.remove_entity(ent).unwrap();
             return;

@@ -5,6 +5,7 @@ use na;
 
 use components;
 use info;
+use rand;
 
 #[derive(Debug)]
 struct BillboardSharedData {
@@ -22,6 +23,7 @@ pub struct Billboard {
     shared: BillboardShared,
     start_time: f32,
     prog: Option<rc::Rc<glium::Program>>,
+    rand_param: f32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -107,6 +109,7 @@ impl Billboard {
             start_time: info.time,
             shared,
             prog,
+            rand_param: rand::random::<f32>(),
         };
 
         sys.add(ent, bb).unwrap();
@@ -135,6 +138,7 @@ impl Billboard {
             size: [bb.width, bb.height],
             time: info.time,
             start_time: bb.start_time,
+            rand: bb.rand_param,
         };
 
         let params = glium::DrawParameters {
@@ -143,6 +147,7 @@ impl Billboard {
                 write: false,
                 ..Default::default()
             },
+            blend: glium::Blend::alpha_blending(),
             ..Default::default()
         };
 

@@ -1,16 +1,15 @@
+extern crate eagre_ecs as ecs;
 extern crate framework;
 #[macro_use]
-extern crate log;
-extern crate pretty_env_logger;
-extern crate toml;
-
-#[macro_use]
 extern crate glium;
-extern crate nalgebra as na;
-extern crate rand;
 extern crate image;
-extern crate eagre_ecs as ecs;
+#[macro_use]
+extern crate log;
+extern crate nalgebra as na;
 extern crate obj;
+extern crate pretty_env_logger;
+extern crate rand;
+extern crate toml;
 
 use glium::glutin;
 
@@ -94,6 +93,30 @@ pub fn visualizer(
         })
         .unwrap_or(0.06) as f32;
     info!("SPACE_SHIP_TIMEOUT = {}s", timeout);
+
+    let camera_speed = config
+        .get("SPACE_CAMERA_SPEED")
+        .map(|v| {
+            v.as_float().expect("SPACE_CAMERA_SPEED must be a float")
+        })
+        .unwrap_or(3.0) as f32;
+    info!("SPACE_CAMERA_SPEED = {}s", camera_speed);
+
+    let camera_radius = config
+        .get("SPACE_CAMERA_RADIUS")
+        .map(|v| {
+            v.as_float().expect("SPACE_CAMERA_RADIUS must be a float")
+        })
+        .unwrap_or(1.0) as f32;
+    info!("SPACE_CAMERA_RADIUS = {}", camera_radius);
+
+    let camera_height = config
+        .get("SPACE_CAMERA_HEIGHT")
+        .map(|v| {
+            v.as_float().expect("SPACE_CAMERA_HEIGHT must be a float")
+        })
+        .unwrap_or(0.0) as f32;
+    info!("SPACE_CAMERA_HEIGHT = {}", camera_height);
 
     let mut events_loop = glutin::EventsLoop::new();
 
@@ -221,12 +244,6 @@ pub fn visualizer(
         100.0,
     );
 
-    let view = na::Matrix4::look_at_rh(
-        &na::Point3::new(1.0, 2.0, 2.0),
-        &na::Point3::new(0.0, 0.0, 0.0),
-        &na::Vector3::new(0.0, 1.0, 0.0),
-    );
-
     let mut volume: f32 = 0.0;
     let mut previous_time: f32 = 0.0;
     let mut is_beat_previous = vec![false; beat_columns.len()];
@@ -287,6 +304,18 @@ pub fn visualizer(
                 }
             }
         }
+
+        let time_scaled = time * std::f32::consts::PI / camera_speed;
+        let view = na::Matrix4::look_at_rh(
+            &na::Point3::new(
+                1.0 + camera_radius * (-(time_scaled * 2.0).cos() * 0.5 + 0.5).abs(),
+                camera_height,
+                camera_radius * 2.0 * time_scaled.cos(),
+            ),
+            &na::Point3::new(0.0, 0.0, 0.0),
+            &na::Vector3::new(0.0, 1.0, 0.0),
+        );
+
 
         let inf = info::Info {
             time,
