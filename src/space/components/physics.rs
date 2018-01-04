@@ -35,7 +35,9 @@ pub struct Acceleration(pub na::Vector3<f32>);
 impl_deref!(Acceleration, na::Vector3<f32>);
 
 pub fn update(sys: &mut ecs::System, info: &info::Info) {
-    sys.run_mut::<Acceleration, _>(|sys, ent| {
+    // Don't check result, as we do not care about the ComponentNotFound
+    // error, that might happen (No entity uses acceleration, for example)
+    let _ = sys.run_mut::<Acceleration, _>(|sys, ent| {
         let new_vel = {
             let acc = sys.borrow::<Acceleration>(ent).unwrap();
             let vel = sys.borrow::<Velocity>(ent).unwrap();
@@ -46,7 +48,7 @@ pub fn update(sys: &mut ecs::System, info: &info::Info) {
         sys.set(ent, Velocity(new_vel)).unwrap();
     });
 
-    sys.run_mut::<Velocity, _>(|sys, ent| {
+    let _ = sys.run_mut::<Velocity, _>(|sys, ent| {
         let new_pos = {
             let vel = sys.borrow::<Velocity>(ent).unwrap();
             let pos = sys.borrow::<Position>(ent).unwrap();

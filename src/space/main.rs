@@ -33,7 +33,7 @@ pub fn visualizer(
         })
         .unwrap_or(20) as usize;
     info!("DISPLAY_COLUMNS = {}", display_columns);
-    let display_columns = display_columns - 1;
+    let _display_columns = display_columns - 1;
 
     let window_height = config
         .get("WINDOW_HEIGHT")
@@ -319,12 +319,12 @@ pub fn visualizer(
             resolution: [window_width as f32, window_height as f32],
         };
 
-        let uniforms2 =
+        /*let uniforms2 =
             uniform! {
             tex_color: tex_color2.sampled()
                 .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             resolution: [window_width as f32, window_height as f32],
-        };
+        };*/
 
 
         components::updateable::update(&mut system, &inf);

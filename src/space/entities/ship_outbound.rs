@@ -1,6 +1,5 @@
 use ecs;
 use glium;
-use rand;
 use na;
 
 use entities;
@@ -14,7 +13,7 @@ impl ShipOutbound {
     pub fn create(
         sys: &mut ecs::System,
         display: &glium::Display,
-        info: &info::Info,
+        _info: &info::Info,
     ) -> ecs::Entity {
         let ent = entities::Ship::create(sys, display);
 
@@ -30,7 +29,7 @@ impl ShipOutbound {
         ent
     }
 
-    pub fn update(sys: &mut ecs::System, ent: ecs::Entity, info: &info::Info) {
+    pub fn update(sys: &mut ecs::System, ent: ecs::Entity, _info: &info::Info) {
         let pos = sys.borrow::<components::Position>(ent).unwrap().0;
         // Delete this ship if we are inside the station
         if pos.x > 5.0 {
