@@ -39,7 +39,9 @@ macro_rules! shader_program_ent {
         let vert_src = {
             use ::std::io::Read;
             let mut buf = String::new();
-            let mut f = ::std::fs::File::open(format!("src/space/entities/{}", $vert_file)).unwrap();
+            let mut f = ::std::fs::File::open(
+                format!("src/space/entities/{}", $vert_file),
+            ).unwrap();
             f.read_to_string(&mut buf).unwrap();
 
             buf
@@ -48,7 +50,9 @@ macro_rules! shader_program_ent {
         let frag_src = {
             use ::std::io::Read;
             let mut buf = String::new();
-            let mut f = ::std::fs::File::open(format!("src/space/entities/{}", $frag_file)).unwrap();
+            let mut f = ::std::fs::File::open(
+                format!("src/space/entities/{}", $frag_file),
+            ).unwrap();
             f.read_to_string(&mut buf).unwrap();
 
             buf
@@ -65,5 +69,3 @@ macro_rules! shader_program_ent {
             None).unwrap()*/
     })
 }
-
-

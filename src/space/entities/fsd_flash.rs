@@ -7,7 +7,7 @@ use components;
 use entities;
 
 #[derive(Debug, Clone)]
-struct FsdFlashShared{
+struct FsdFlashShared {
     program: rc::Rc<glium::Program>,
 }
 
@@ -17,7 +17,11 @@ pub struct FsdFlash {
 }
 
 impl FsdFlash {
-    pub fn create(sys: &mut ecs::System, display: &glium::Display, info: &info::Info) -> ecs::Entity {
+    pub fn create(
+        sys: &mut ecs::System,
+        display: &glium::Display,
+        info: &info::Info,
+    ) -> ecs::Entity {
         // There is an entity which just exists to make sure, the shared data
         // will be kept even if there is no flash currently alive
         let shared = if let Ok(ents) = sys.entities_with::<FsdFlashShared>() {
@@ -27,7 +31,11 @@ impl FsdFlash {
 
             // Create shared data
             let shared = FsdFlashShared {
-                program: rc::Rc::new(shader_program_ent!(display, "shaders/billboard.vert", "shaders/fsd_flash.frag")),
+                program: rc::Rc::new(shader_program_ent!(
+                    display,
+                    "shaders/billboard.vert",
+                    "shaders/fsd_flash.frag"
+                )),
             };
 
             sys.add(shared_ent, shared.clone()).unwrap();
@@ -35,13 +43,20 @@ impl FsdFlash {
             shared
         };
 
-        let f = FsdFlash {
-            start_time: info.time,
-        };
-        let ent = entities::Billboard::create(sys, None, display, 0.6, 0.6, info, Some(shared.program.clone()));
+        let f = FsdFlash { start_time: info.time };
+        let ent = entities::Billboard::create(
+            sys,
+            None,
+            display,
+            0.6,
+            0.6,
+            info,
+            Some(shared.program.clone()),
+        );
 
         sys.add(ent, f).unwrap();
-        sys.add(ent, components::Updateable::new(FsdFlash::update)).unwrap();
+        sys.add(ent, components::Updateable::new(FsdFlash::update))
+            .unwrap();
 
         ent
     }

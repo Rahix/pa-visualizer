@@ -133,11 +133,7 @@ impl Station {
         };
 
         let s = StationObj {
-            program: shader_program_ent!(
-                display,
-                "shaders/station.vert",
-                "shaders/station.frag"
-            ),
+            program: shader_program_ent!(display, "shaders/station.vert", "shaders/station.frag"),
             vbuf1,
             ibuf1,
             vbuf2,

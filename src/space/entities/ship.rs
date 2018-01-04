@@ -45,31 +45,34 @@ impl Ship {
         let ent = sys.new_entity();
 
         let shared = if let Some(s) = if let Ok(ents) = sys.entities_with::<Ship>() {
-                if ents.len() > 0 {
-                    Some(sys.borrow::<Ship>(ents[0]).unwrap().shared.clone())
-                } else {
-                    None
-                }
+            if ents.len() > 0 {
+                Some(sys.borrow::<Ship>(ents[0]).unwrap().shared.clone())
             } else {
                 None
-            } {
+            }
+        } else {
+            None
+        }
+        {
             s
         } else {
-            let vbuf = glium::VertexBuffer::new(display, &vec![Vertex {
-                position: [0.0, 0.0, 1.0, 1.0],
-            }, Vertex {
-                position: [-0.2, 0.0, -1.0, 1.0],
-            }, Vertex {
-                position: [0.2, 0.0, -1.0, 1.0],
-            }]).unwrap();
+            let vbuf = glium::VertexBuffer::new(
+                display,
+                &vec![
+                    Vertex { position: [0.0, 0.0, 1.0, 1.0] },
+                    Vertex { position: [-0.2, 0.0, -1.0, 1.0] },
+                    Vertex { position: [0.2, 0.0, -1.0, 1.0] },
+                ],
+            ).unwrap();
 
-            let ibuf = glium::IndexBuffer::new(display, glium::index::PrimitiveType::LinesList, &vec![
-                0, 1,
-                1, 2,
-                0, 2,
-            ]).unwrap();
+            let ibuf = glium::IndexBuffer::new(
+                display,
+                glium::index::PrimitiveType::LinesList,
+                &vec![0, 1, 1, 2, 0, 2],
+            ).unwrap();
 
-            let program = shader_program_ent!(display, "shaders/station.vert", "shaders/station.frag");
+            let program =
+                shader_program_ent!(display, "shaders/station.vert", "shaders/station.frag");
 
             rc::Rc::new(ShipSharedData {
                 program,
@@ -88,8 +91,10 @@ impl Ship {
         };
 
         sys.add(ent, s).unwrap();
-        sys.add(ent, components::Position(na::Point3::new(0.0, 0.0, 0.0))).unwrap();
-        sys.add(ent, components::Velocity(na::Vector3::new(-0.1, 0.0, 0.0))).unwrap();
+        sys.add(ent, components::Position(na::Point3::new(0.0, 0.0, 0.0)))
+            .unwrap();
+        sys.add(ent, components::Velocity(na::Vector3::new(-0.1, 0.0, 0.0)))
+            .unwrap();
         sys.add(ent, components::Drawable::new(Ship::draw)).unwrap();
 
         ent
@@ -107,19 +112,25 @@ impl Ship {
         let pos = sys.borrow::<components::Position>(ent).unwrap().0;
         let vel = sys.borrow::<components::Velocity>(ent).unwrap().0;
 
-        let station = sys.borrow::<entities::Station>(info.station).unwrap().0.borrow();
-        let mailslot_vector = na::Vector3::new(0.0, -station.rotation.sin() * s.mailslot_deviation * 0.06, station.rotation.cos() * s.mailslot_deviation * 0.06);
+        let station = sys.borrow::<entities::Station>(info.station)
+            .unwrap()
+            .0
+            .borrow();
+        let mailslot_vector = na::Vector3::new(
+            0.0,
+            -station.rotation.sin() * s.mailslot_deviation * 0.06,
+            station.rotation.cos() * s.mailslot_deviation * 0.06,
+        );
 
         let fac = if vel.x > 0.0 { 1.0 } else { -1.0 };
-        let model = (na::Translation3::from_vector(pos.coords + mailslot_vector)
-            * na::UnitQuaternion::new_observer_frame(&na::normalize(&vel), &na::Vector3::new(0.0, 1.0, 0.0))
-            * na::UnitQuaternion::new(na::Vector3::new(0.0, 0.0, fac * station.rotation))
-            * na::Similarity3::from_scaling(0.05)
-        ).to_homogeneous();
-        //    (na::UnitQuaternion::new_observer_frame(&na::normalize(&vel), &na::Vector3::new(0.0, 1.0, 0.0))
-        //    * na::Similarity3::from_parts(na::Translation3::from_vector(pos.coords + mailslot_vector),
-        //        na::UnitQuaternion::new(na::Vector3::new(0.0, 0.0, station.rotation)),
-        //        0.05)).to_homogeneous();
+        let model = (na::Translation3::from_vector(pos.coords + mailslot_vector) *
+                         na::UnitQuaternion::new_observer_frame(
+                &na::normalize(&vel),
+                &na::Vector3::new(0.0, 1.0, 0.0),
+            ) *
+                         na::UnitQuaternion::new(
+                na::Vector3::new(0.0, 0.0, fac * station.rotation),
+            ) * na::Similarity3::from_scaling(0.05)).to_homogeneous();
 
 
         let ps_view = info.view * pos.to_homogeneous();
@@ -139,13 +150,20 @@ impl Ship {
             depth: glium::Depth {
                 test: glium::DepthTest::IfLess,
                 write: true,
-                .. Default::default()
+                ..Default::default()
             },
             point_size: Some(point_size),
-            .. Default::default()
+            ..Default::default()
         };
 
-        target.draw(&s.shared.vbuf, &s.shared.ibuf, &s.shared.program, &uniforms, &params)
+        target
+            .draw(
+                &s.shared.vbuf,
+                &s.shared.ibuf,
+                &s.shared.program,
+                &uniforms,
+                &params,
+            )
             .unwrap();
     }
 }
