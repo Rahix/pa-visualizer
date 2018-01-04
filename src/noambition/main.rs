@@ -231,9 +231,17 @@ pub fn visualizer(
 
     let window = glutin::WindowBuilder::new()
         .with_dimensions(window_width, window_height)
-        .with_maximized(if let framework::RunMode::Live = run_mode { true } else { false })
+        .with_maximized(if let framework::RunMode::Live = run_mode {
+            true
+        } else {
+            false
+        })
         .with_decorations(false)
-        //.with_fullscreen(Some(events_loop.get_primary_monitor()))
+        .with_fullscreen(if let framework::RunMode::Live = run_mode {
+            Some(events_loop.get_primary_monitor())
+        } else {
+            None
+        })
         .with_title("PulseAudio Visualizer - No Ambition");
 
     let context = glutin::ContextBuilder::new()

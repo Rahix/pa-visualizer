@@ -89,7 +89,9 @@ pub fn visualizer(
 
     let timeout = config
         .get("SPACE_SHIP_TIMEOUT")
-        .map(|v| v.as_float().expect("SPACE_SHIP_TIMEOUT must be a float"))
+        .map(|v| {
+            v.as_float().expect("SPACE_SHIP_TIMEOUT must be a float")
+        })
         .unwrap_or(0.06) as f32;
     info!("SPACE_SHIP_TIMEOUT = {}s", timeout);
 
@@ -103,7 +105,11 @@ pub fn visualizer(
             false
         })
         .with_decorations(false)
-        .with_fullscreen(Some(events_loop.get_primary_monitor()))
+        .with_fullscreen(if let framework::RunMode::Live = run_mode {
+            Some(events_loop.get_primary_monitor())
+        } else {
+            None
+        })
         .with_title("PulseAudio Visualizer - Space");
 
     let context = glutin::ContextBuilder::new()
@@ -378,7 +384,9 @@ pub fn visualizer(
                             ..
                         },
                         ..
-                    } => { entities::ShipOutbound::create(&mut system, &display, &inf); },
+                    } => {
+                        entities::ShipOutbound::create(&mut system, &display, &inf);
+                    }
                     _ => (),
                 }
             }
