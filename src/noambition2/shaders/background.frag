@@ -46,7 +46,7 @@ float bg_func3(vec2 coords) {
 void main() {
     vec4 color = vec4(texture(tex_color, frag_texcoord));
     float alpha = color.a;
-    vec3 base_color = vec3(7.0 / 255.0, 5.0 / 255.0, 40.0 / 255.0);
+    vec3 base_color = vec3(0.05); //vec3(7.0 / 255.0, 5.0 / 255.0, 40.0 / 255.0);
     fg_color = vec4(base_color
             * bg_func3(frag_texcoord * 2.0 - 1.0)
             * (1.0 - alpha) + color.rgb * alpha, 1.0);

@@ -412,7 +412,7 @@ pub fn visualizer(
         let mut v_buf = Vec::with_capacity(rows * display_columns * 4);
         let mut i_buf = Vec::with_capacity(rows * display_columns * 4);
         let mut index = 0u16;
-        let color = [7.0 / 255.0, 5.0 / 255.0, 40.0 / 255.0, 0.8];
+        let color = [1.0, 1.0, 1.0, 0.1]; //[7.0 / 255.0, 5.0 / 255.0, 40.0 / 255.0, 0.8];
         for row in 0..rows {
             //Left
             for column in 0..display_columns {
@@ -463,7 +463,7 @@ pub fn visualizer(
         let mut v_buf = Vec::with_capacity(rows * display_columns * 4);
         let mut i_buf = Vec::with_capacity(rows * display_columns * 4);
         let mut index = 0u16;
-        let color = [8.0 / 255.0, 6.0 / 255.0, 40.0 / 255.0, 1.0];
+        let color = [1.0, 1.0, 1.0, 0.4]; //[8.0 / 255.0, 6.0 / 255.0, 40.0 / 255.0, 1.0];
         for row in 0..rows {
             //Left
             for column in 0..display_columns {
@@ -739,7 +739,7 @@ pub fn visualizer(
                 );
                 lightning_buffers.2[(lightning_buffers.4 + i) % max_points] = Vertex {
                     position: Into::<[f32; 4]>::into(pos.to_homogeneous()),
-                    color: [0.3, 0.4, 1.0, 0.8],
+                    color: [1.0, 1.0, 1.0, 1.0], //[0.3, 0.4, 1.0, 0.8],
                 };
             }
             for i in 0..num_lines {
