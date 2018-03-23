@@ -25,14 +25,13 @@ pub fn visualizer(
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
     mut run_mode: framework::RunMode,
 ) {
-    let display_columns = config
+    /*let display_columns = config
         .get("DISPLAY_COLUMNS")
         .map(|v| {
             v.as_integer().expect("DISPLAY_COLUMNS must be an integer")
         })
         .unwrap_or(20) as usize;
-    info!("DISPLAY_COLUMNS = {}", display_columns);
-    let _display_columns = display_columns - 1;
+    info!("DISPLAY_COLUMNS = {}", display_columns);*/
 
     let window_height = config
         .get("WINDOW_HEIGHT")

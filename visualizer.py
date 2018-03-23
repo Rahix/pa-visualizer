@@ -1,38 +1,42 @@
+#!/usr/bin/python3
+""" Visualizer written in python """
+
 from sfml import sf
-import time
 
-settings = sf.ContextSettings()
-settings.antialiasing_level = 8
+SETTINGS = sf.ContextSettings()
+SETTINGS.antialiasing_level = 8
 
-window = sf.RenderWindow(sf.VideoMode(800, 600, 32),
-                                    "PAVisualizer",
-                                    sf.Style.DEFAULT,
-                                    settings)
+WINDOW = sf.RenderWindow(sf.VideoMode(800, 600, 32),
+                         "PAVisualizer",
+                         sf.Style.DEFAULT,
+                         SETTINGS)
 
-window.view.center = (0, 0)
-window.view.size = (2.2, 2.2)
+WINDOW.view.center = (0, 0)
+WINDOW.view.size = (2.2, 2.2)
 
-rect = sf.RectangleShape()
+RECT = sf.RectangleShape()
 
-width = 0.8 / COLUMNS
+WIDTH = 0.8 / COLUMNS
 
 def frame(left, right):
-    window.clear(sf.Color(50,50,50))
+    """ Render a single frame """
+    WINDOW.clear(sf.Color(50, 50, 50))
 
     for i in range(0, COLUMNS):
         size = (left[i] + right[i]) / 2
 
-        rect.position = (i / COLUMNS * 2 - 1, -size/2)
-        rect.size = (width, size)
+        RECT.position = (i / COLUMNS * 2 - 1, -size/2)
+        RECT.size = (WIDTH, size)
 
-        window.draw(rect)
+        WINDOW.draw(RECT)
 
-    window.display()
+    WINDOW.display()
 
-    for ev in window.events:
-        if ev.type == sf.Event.CLOSED or (ev.type == sf.Event.KEY_RELEASED and ev["code"] == sf.Keyboard.ESCAPE):
-            window.close()
+    for event in WINDOW.events:
+        if event.type == sf.Event.CLOSED \
+           or (event.type == sf.Event.KEY_RELEASED \
+           and event["code"] == sf.Keyboard.ESCAPE):
+            WINDOW.close()
             return False
 
-    # time.sleep(0.02)
     return True
