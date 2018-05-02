@@ -3,6 +3,8 @@ pa-visualizer
 
 A collection of pulseaudio visualizers
 
+![all](img/all.png)
+
 ## Usage ##
 
 ### Live ###
@@ -66,6 +68,10 @@ A 3d visualizer, written using glium based on the [Demo "No Ambition" by Quite &
 ### noambition2 ###
 ![noambition](img/noambition2.png)
 Taking the noambition visualizer to the 'next' level ... Thanks to offdroid, for help with implementing this ...
+
+### Space ###
+![space](img/space.png)
+An Elite: Dangerous inspired visualizer with spaceships flying in and out of a coriolis station
 
 ## Stuff used in this project ##
 
