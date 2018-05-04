@@ -2,7 +2,7 @@
 macro_rules! shader_program {
     ($display:expr, $vert_file:expr, $frag_file:expr) => ({
         // Use this for debug
-        let vert_src = {
+        /*let vert_src = {
             use ::std::io::Read;
             let mut buf = String::new();
             let mut f = ::std::fs::File::open(format!("src/space/{}", $vert_file)).unwrap();
@@ -23,12 +23,12 @@ macro_rules! shader_program {
         glium::Program::from_source($display,
                 &vert_src,
                 &frag_src,
-                None).unwrap()
+                None).unwrap()*/
         // Use this for release
-        /*glium::Program::from_source($display,
+        glium::Program::from_source($display,
             include_str!($vert_file),
             include_str!($frag_file),
-            None).unwrap()*/
+            None).unwrap()
     })
 }
 
@@ -36,7 +36,7 @@ macro_rules! shader_program {
 macro_rules! shader_program_ent {
     ($display:expr, $vert_file:expr, $frag_file:expr) => ({
         // Use this for debug
-        let vert_src = {
+        /*let vert_src = {
             use ::std::io::Read;
             let mut buf = String::new();
             let mut f = ::std::fs::File::open(
@@ -61,11 +61,11 @@ macro_rules! shader_program_ent {
         glium::Program::from_source($display,
                 &vert_src,
                 &frag_src,
-                None).unwrap()
+                None).unwrap()*/
         // Use this for release
-        /*glium::Program::from_source($display,
+        glium::Program::from_source($display,
             include_str!($vert_file),
             include_str!($frag_file),
-            None).unwrap()*/
+            None).unwrap()
     })
 }
