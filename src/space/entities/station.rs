@@ -165,11 +165,11 @@ impl Station {
             s.last_beat = info.time;
         }
 
-        let fact = 1.0 / (((info.time - s.last_beat) * 10.0) + 2.0);
-        s.color.x = (1.0 - fact) * (0.4f32 * info.beat * 0.8 + 0.2) + fact * (0.2);
-        s.color.y = (1.0 - fact) * (0.4 * info.beat * 0.8 + 0.2) + fact * (1.0);
-        s.color.z = (1.0 - fact) * (1.0 * info.beat * 0.8 + 0.2) + fact * (0.2);
-        s.color.w = (1.0 - fact) * (0.8 * info.beat * 0.8 + 0.2) + fact * (1.0);
+        let fact = 1.0 / (((info.time - s.last_beat) * 10.0) + 1.0);
+        s.color.x = (1.0 - fact) * (0.02 / 3.0) + fact * 0.00;
+        s.color.y = (1.0 - fact) * (0.22 / 3.0) + fact * 0.63;
+        s.color.z = (1.0 - fact) * (0.51 / 3.0) + fact * 1.00;
+        s.color.w = 1.0;
     }
 
     pub fn draw(
