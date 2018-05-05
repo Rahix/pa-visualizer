@@ -21,7 +21,8 @@ const COLORS: [[f32; 3]; 6] = [
 pub struct ShipSharedData {
     program: glium::Program,
     vbuf: glium::VertexBuffer<Vertex>,
-    ibuf: glium::IndexBuffer<u16>,
+    ibuf1: glium::IndexBuffer<u16>,
+    ibuf2: glium::IndexBuffer<u16>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -65,7 +66,13 @@ impl Ship {
                 ],
             ).unwrap();
 
-            let ibuf = glium::IndexBuffer::new(
+            let ibuf1 = glium::IndexBuffer::new(
+                display,
+                glium::index::PrimitiveType::TrianglesList,
+                &vec![0, 1, 2],
+            ).unwrap();
+
+            let ibuf2 = glium::IndexBuffer::new(
                 display,
                 glium::index::PrimitiveType::LinesList,
                 &vec![0, 1, 1, 2, 0, 2],
@@ -77,7 +84,8 @@ impl Ship {
             rc::Rc::new(ShipSharedData {
                 program,
                 vbuf,
-                ibuf,
+                ibuf1,
+                ibuf2,
             })
         };
 
@@ -132,6 +140,33 @@ impl Ship {
                 na::Vector3::new(0.0, 0.0, fac * station.rotation),
             ) * na::Similarity3::from_scaling(0.05)).to_homogeneous();
 
+        let params = glium::DrawParameters {
+            depth: glium::Depth {
+                test: glium::DepthTest::IfLess,
+                write: true,
+                ..Default::default()
+            },
+            backface_culling: glium::draw_parameters::BackfaceCullingMode::CullingDisabled,
+            ..Default::default()
+        };
+
+        let uniforms =
+            uniform! {
+            perspective_matrix: Into::<[[f32; 4]; 4]>::into(info.perspective),
+            view_matrix: Into::<[[f32; 4]; 4]>::into(info.view),
+            model_matrix: Into::<[[f32; 4]; 4]>::into(model),
+            color: [0.0f32, 0.0, 0.0, 1.0],
+        };
+
+        target
+            .draw(
+                &s.shared.vbuf,
+                &s.shared.ibuf1,
+                &s.shared.program,
+                &uniforms,
+                &params,
+            )
+            .unwrap();
 
         let uniforms =
             uniform! {
@@ -141,19 +176,10 @@ impl Ship {
             color: [s.color.x, s.color.y, s.color.z, 1.0],
         };
 
-        let params = glium::DrawParameters {
-            depth: glium::Depth {
-                test: glium::DepthTest::IfLess,
-                write: true,
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
         target
             .draw(
                 &s.shared.vbuf,
-                &s.shared.ibuf,
+                &s.shared.ibuf2,
                 &s.shared.program,
                 &uniforms,
                 &params,
