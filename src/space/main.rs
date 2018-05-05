@@ -229,6 +229,11 @@ pub fn visualizer(
     ).unwrap();
 
     let fxaa_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/fxaa.frag");
+    let background_program = shader_program!(
+        &display,
+        "shaders/postprocess.vert",
+        "shaders/background.frag"
+    );
 
     let mut system = ecs::System::new();
 
@@ -345,14 +350,19 @@ pub fn visualizer(
             tex_color: tex_color1.sampled()
                 .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             resolution: [window_width as f32, window_height as f32],
+            time: time,
+            beat: beat,
         };
 
-        /*let uniforms2 =
+        let uniforms2 =
             uniform! {
             tex_color: tex_color2.sampled()
                 .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             resolution: [window_width as f32, window_height as f32],
-        };*/
+            time: time,
+            beat: beat,
+        };
+
 
 
         components::updateable::update(&mut system, &inf);
@@ -360,13 +370,24 @@ pub fn visualizer(
 
         components::drawable::draw(&system, &inf, &mut framebuffer1);
 
-        // Postprocess
+        // Background
         framebuffer2
             .draw(
                 &quad_vertex_buffer,
                 &quad_index_buffer,
-                &fxaa_program,
+                &background_program,
                 &uniforms1,
+                &Default::default(),
+            )
+            .unwrap();
+
+        // Postprocess
+        framebuffer1
+            .draw(
+                &quad_vertex_buffer,
+                &quad_index_buffer,
+                &fxaa_program,
+                &uniforms2,
                 &Default::default(),
             )
             .unwrap();
@@ -374,7 +395,7 @@ pub fn visualizer(
         let target = display.draw();
         let dims = target.get_dimensions();
         target.blit_from_simple_framebuffer(
-            &tex_color2.as_surface(),
+            &tex_color1.as_surface(),
             &glium::Rect {
                 left: 0,
                 bottom: 0,
