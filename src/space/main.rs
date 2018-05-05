@@ -310,13 +310,14 @@ pub fn visualizer(
         }
 
         let time_scaled = time * std::f32::consts::PI / camera_speed;
+        let camera_position = na::Point3::new(
+            2.0,
+            camera_height,
+            time_scaled.cos() * camera_radius / 2.0 + 1.0,
+        );
         let view = na::Matrix4::look_at_rh(
-            &na::Point3::new(
-                1.0 + camera_radius * (-(time_scaled * 2.0).cos() * 0.5 + 0.5).abs(),
-                camera_height,
-                camera_radius * 2.0 * time_scaled.cos(),
-            ),
-            &na::Point3::new(0.0, 0.0, 0.0),
+            &camera_position,
+            &(camera_position + na::Vector3::new(-2.0, 0.0, -1.0)),
             &na::Vector3::new(0.0, 1.0, 0.0),
         );
 
