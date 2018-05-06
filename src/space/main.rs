@@ -311,7 +311,7 @@ pub fn visualizer(
 
         let time_scaled = time * std::f32::consts::PI / camera_speed;
         let camera_position = na::Point3::new(
-            2.0,
+            3.0,
             camera_height,
             time_scaled.cos() * camera_radius / 2.0 + 1.0,
         );

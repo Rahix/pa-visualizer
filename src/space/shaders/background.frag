@@ -18,36 +18,51 @@ vec2 position = vec2(-0.3, 0.2);
 float circle(vec2 coords) {
     vec2 c = coords + position;
     c.y = c.y * resolution.y / resolution.x;
-    float r = sqrt(c.x * c.x + c.y * c.y) * ((1.0 - beat) * 0.1 + 0.9);
-    return smoothstep(radius + 0.01, radius - 0.01, r);
+    float r = sqrt(c.x * c.x + c.y * c.y) * ((1.0 - beat) * 0.03 + 0.97);
+    return smoothstep(radius + 0.003, radius - 0.003, r);
 }
 
 float stripes(vec2 coords) {
     vec2 c = coords + position;
-    c.y = c.y * resolution.y / resolution.x - 0.06;
-    return 0.0
-        + smoothstep(0.02, 0.01, c.y) - smoothstep(-0.01, -0.02, c.y)
-        + smoothstep(0.02, 0.01, c.y + 0.1) - smoothstep(-0.01, -0.02, c.y + 0.1)
-        + smoothstep(0.02, 0.01, c.y + 0.23) - smoothstep(-0.01, -0.02, c.y + 0.23)
-        + smoothstep(0.02, 0.01, c.y - 0.08) - smoothstep(-0.01, -0.02, c.y - 0.08)
-        + smoothstep(0.02, 0.01, c.y - 0.15) - smoothstep(-0.01, -0.02, c.y - 0.15)
-    ;
+    c.y = c.y * resolution.y / resolution.x - 0.3;
+    float result = 0.0;
+    float smoothsize = 0.005;
+    float size = 0.002;
+    for(int i = 3; i < 16; i++) {
+        float y = c.y + pow(i / 2.0, 2) * 0.01;
+        result += smoothstep(smoothsize + size, size, y)
+                - smoothstep(-size, -size - smoothsize, y);
+    }
+    return result;
 }
 
-vec3 sun(vec2 coords) {
+vec3 sky(vec2 coords) {
+    vec3 result = vec3(0.0);
     float fact = max(circle(coords) - stripes(coords), 0.0);
-    vec3 color_top = vec3(0.937, 0.502, 0.059);
-    vec3 color_bottom = vec3(0.878, 0.275, 0.824) * 0.4;
-    float color_fact = smoothstep(-0.8, 1.0, coords.y);
+
+    // sun
+    vec3 color_top = vec3(0.893, 0.346, 0.000246);
+    vec3 color_bottom = vec3(0.961, 0.00125, 0.646);
+    float color_fact = smoothstep(-0.4 - position.y + 0.1, 0.4 - position.y + 0.1, coords.y);
     vec3 color = color_top * color_fact + (1.0 - color_fact) * color_bottom;
-    return color * fact * 0.5;
+
+    result += color * fact;
+
+    vec3 color1 = vec3(0.000015, 0.000554, 0.062991) / 5.0;
+    vec3 color2 = vec3(0.007443, 0.013841, 0.138793) / 5.0;
+
+    float t = coords.y / 2.0 + 0.5;
+
+    result += (1.0 - fact) * (t * color1 + (1.0 - t) * color2);
+
+    return result;
 }
 
 void main() {
     vec4 color = vec4(texture(tex_color, frag_texcoord));
     float alpha = color.a;
     vec3 base_color = vec3(0.14 / 7.0, 0.10 / 7.0, 0.16 / 7.0);
-    frg_color = vec4(sun(frag_texcoord * 2.0 - 1.0)
+    frg_color = vec4(sky(frag_texcoord * 2.0 - 1.0)
             * (1.0 - alpha) + color.rgb * alpha, 1.0);
 }
 
