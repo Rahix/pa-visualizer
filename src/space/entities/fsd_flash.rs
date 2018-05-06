@@ -48,8 +48,8 @@ impl FsdFlash {
             sys,
             None,
             display,
-            0.4,
-            0.4,
+            1.0,
+            1.0,
             info,
             Some(shared.program.clone()),
         );
