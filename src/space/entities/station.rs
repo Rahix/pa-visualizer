@@ -166,9 +166,9 @@ impl Station {
         }
 
         let fact = 1.0 / (((info.time - s.last_beat) * 10.0) + 1.0);
-        s.color.x = (1.0 - fact) * (0.02 / 3.0) + fact * 0.00;
-        s.color.y = (1.0 - fact) * (0.22 / 3.0) + fact * 0.63;
-        s.color.z = (1.0 - fact) * (0.51 / 3.0) + fact * 1.00;
+        s.color.x = (1.0 - fact) * 0.003014 + fact * 0.0384;
+        s.color.y = (1.0 - fact) * 0.139 + fact * 0.938;
+        s.color.z = (1.0 - fact) * 0.31 + fact * 0.969;
         s.color.w = 1.0;
     }
 

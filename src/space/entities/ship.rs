@@ -8,20 +8,15 @@ use info;
 use components;
 use entities;
 
-const COLORS: [[f32; 3]; 6] = [
-    // magenta / pink
-    [0.878, 0.275, 0.824],
-    [0.878, 0.275, 0.824],
-
-    // light violet
-    [0.341, 0.349, 0.749],
-
-    // pink
-    [0.910, 0.184, 0.424],
-
-    // orange
-    [0.937, 0.502, 0.059],
-    [0.937, 0.502, 0.059],
+const COLORS: [[f32; 3]; 4] = [
+    // emerald
+    [0.0535, 0.923, 0.229],
+    // orangy
+    [1.0, 0.13, 0.189],
+    // yellow
+    [0.984, 0.992, 0.183],
+    // violet
+    [0.142, 0.0148, 0.122],
 ];
 
 #[derive(Debug)]
@@ -96,7 +91,7 @@ impl Ship {
             })
         };
 
-        let color = COLORS[(rand::random::<f32>() * 6.0) as usize];
+        let color = COLORS[(rand::random::<f32>() * 4.0) as usize];
         let color = na::Vector3::new(color[0], color[1], color[2]);
 
         let s = Ship {
