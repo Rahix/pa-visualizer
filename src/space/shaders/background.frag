@@ -12,24 +12,25 @@ out vec4 frg_color;
 
 float PI = 3.1415926;
 
-float radius = 0.3;
-vec2 position = vec2(-0.3, 0.2);
+float radius = 0.15;
+float beat_intensity = 0.06;
+vec2 position = vec2(-0.2, -0.4);
 
 float circle(vec2 coords) {
     vec2 c = coords + position;
     c.y = c.y * resolution.y / resolution.x;
-    float r = sqrt(c.x * c.x + c.y * c.y) * ((1.0 - beat) * 0.03 + 0.97);
+    float r = sqrt(c.x * c.x + c.y * c.y) * ((1.0 - beat) * beat_intensity + (1.0 - beat_intensity));
     return smoothstep(radius + 0.003, radius - 0.003, r);
 }
 
 float stripes(vec2 coords) {
     vec2 c = coords + position;
-    c.y = c.y * resolution.y / resolution.x - 0.3;
+    c.y = c.y * resolution.y / resolution.x - radius;
     float result = 0.0;
-    float smoothsize = 0.005;
-    float size = 0.002;
+    float smoothsize = 0.005 * radius / 0.3;
+    float size = 0.002 * radius / 0.3;
     for(int i = 3; i < 16; i++) {
-        float y = c.y + pow(i / 2.0, 2) * 0.01;
+        float y = c.y + pow(i / 2.0, 2) * 0.01 * radius / 0.3;
         result += smoothstep(smoothsize + size, size, y)
                 - smoothstep(-size, -size - smoothsize, y);
     }
@@ -43,11 +44,12 @@ vec3 sky(vec2 coords) {
     // sun
     vec3 color_top = vec3(0.893, 0.346, 0.000246);
     vec3 color_bottom = vec3(0.961, 0.00125, 0.646);
-    float color_fact = smoothstep(-0.4 - position.y + 0.1, 0.4 - position.y + 0.1, coords.y);
+    float color_fact = smoothstep(- radius - position.y, 0.2 * radius / 0.3 + radius - position.y, coords.y);
     vec3 color = color_top * color_fact + (1.0 - color_fact) * color_bottom;
 
     result += color * fact;
 
+    // gradient
     vec3 color1 = vec3(0.000015, 0.000554, 0.062991) / 5.0;
     vec3 color2 = vec3(0.007443, 0.013841, 0.138793) / 5.0;
 

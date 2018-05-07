@@ -238,6 +238,7 @@ pub fn visualizer(
     let mut system = ecs::System::new();
 
     let station_ent = entities::Station::create(&mut system, &display, config.clone());
+    entities::Planet::create(&mut system, &display, config.clone());
 
     let start_time = ::std::time::Instant::now();
 
@@ -338,6 +339,14 @@ pub fn visualizer(
 
         if do_ship {
             entities::ShipInbound::create(&mut system, &display, &inf);
+
+            entities::FreqDrop::create(
+                &mut system,
+                &display,
+                &inf,
+                rand::random::<f32>() * 4.0 - 2.0,
+                rand::random::<f32>() * 0.15 + 0.05,
+            );
             last_ship = time;
             do_ship = false;
         }
@@ -435,7 +444,14 @@ pub fn visualizer(
                         },
                         ..
                     } => {
-                        entities::ShipOutbound::create(&mut system, &display, &inf);
+                        //entities::ShipOutbound::create(&mut system, &display, &inf);
+                        entities::FreqDrop::create(
+                            &mut system,
+                            &display,
+                            &inf,
+                            rand::random::<f32>() * 4.0 - 2.0,
+                            rand::random::<f32>() * 0.2,
+                        );
                     }
                     _ => (),
                 }
