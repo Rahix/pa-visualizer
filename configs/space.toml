@@ -24,7 +24,10 @@ SPACE_STATION_BASE_ROT = 0.3
 
 SPACE_SHIP_TIMEOUT = 0.06
 
-num_drops = 3
+[fdrop]
+min = 0.02
+max = 0.05
+num = 30
 
 [planet]
 x = -10.0

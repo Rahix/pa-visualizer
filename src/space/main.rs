@@ -346,13 +346,16 @@ pub fn visualizer(
         if do_ship {
             entities::ShipInbound::create(&mut system, &display, &inf);
 
-            for _ in 0..ezconf_int!(CONFIG: "num_drops", 1) {
+            let scale_min = ezconf_float!(CONFIG: "fdrop.min", 0.05) as f32;
+            let scale_fact = ezconf_float!(CONFIG: "fdrop.max", 0.20) as f32 - scale_min;
+
+            for _ in 0..ezconf_int!(CONFIG: "fdrop.num", 1) {
                 entities::FreqDrop::create(
                     &mut system,
                     &display,
                     &inf,
                     rand::random::<f32>() * 4.0 - 2.0,
-                    rand::random::<f32>() * 0.15 + 0.05,
+                    rand::random::<f32>() * scale_fact + scale_min,
                 );
             }
             last_ship = time;
