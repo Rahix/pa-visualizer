@@ -12,5 +12,5 @@ smooth out vec2 frag_tex_coord;
 
 void main() {
     frag_tex_coord = tex_coord;
-    gl_Position = bb_position + vec4(position * (size / 2.0), 0.0, 1.0);
+    gl_Position = vec4(bb_position.xy + position * (size / 2.0), 0.999999, 1.0);
 }

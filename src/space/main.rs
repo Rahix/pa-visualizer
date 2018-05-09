@@ -10,6 +10,10 @@ extern crate obj;
 extern crate pretty_env_logger;
 extern crate rand;
 extern crate toml;
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate ezconf;
 
 use glium::glutin;
 
@@ -19,6 +23,8 @@ pub mod macros;
 mod entities;
 mod components;
 mod info;
+
+ezconf_file!(CONFIG = "configs/space.toml");
 
 pub fn visualizer(
     config: ::std::sync::Arc<toml::Value>,
@@ -340,13 +346,15 @@ pub fn visualizer(
         if do_ship {
             entities::ShipInbound::create(&mut system, &display, &inf);
 
-            entities::FreqDrop::create(
-                &mut system,
-                &display,
-                &inf,
-                rand::random::<f32>() * 4.0 - 2.0,
-                rand::random::<f32>() * 0.15 + 0.05,
-            );
+            for _ in 0..ezconf_int!(CONFIG: "num_drops", 1) {
+                entities::FreqDrop::create(
+                    &mut system,
+                    &display,
+                    &inf,
+                    rand::random::<f32>() * 4.0 - 2.0,
+                    rand::random::<f32>() * 0.15 + 0.05,
+                );
+            }
             last_ship = time;
             do_ship = false;
         }
@@ -444,7 +452,7 @@ pub fn visualizer(
                         },
                         ..
                     } => {
-                        //entities::ShipOutbound::create(&mut system, &display, &inf);
+                        entities::ShipOutbound::create(&mut system, &display, &inf);
                         entities::FreqDrop::create(
                             &mut system,
                             &display,

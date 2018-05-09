@@ -60,7 +60,7 @@ impl FreqDrop {
         sys.add(ent, f).unwrap();
         sys.set(
             ent,
-            components::Position(na::Point3::new(position - width / 2.0, 0.0, 0.9)),
+            components::Position(na::Point3::new(position - width / 2.0, 0.0, 0.0)),
         ).unwrap();
         sys.add(ent, components::Updateable::new(FreqDrop::update))
             .unwrap();
@@ -69,7 +69,7 @@ impl FreqDrop {
     }
 
     pub fn update(sys: &mut ecs::System, ent: ecs::Entity, info: &info::Info) {
-        if (info.time - sys.borrow::<FreqDrop>(ent).unwrap().start_time) > 10.0 {
+        if (info.time - sys.borrow::<FreqDrop>(ent).unwrap().start_time) > 5.0 {
             sys.remove_entity(ent).unwrap();
         }
     }

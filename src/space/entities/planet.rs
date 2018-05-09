@@ -8,6 +8,7 @@ use obj;
 
 use info;
 use components;
+use CONFIG;
 
 #[derive(Debug, Clone)]
 pub struct Planet(pub rc::Rc<cell::RefCell<PlanetObj>>);
@@ -191,11 +192,13 @@ impl Planet {
 
         let s = sys.borrow::<Planet>(ent).unwrap().0.borrow();
 
-        let model = na::Translation3::from_vector(
-            na::Vector3::new(2.2 - 2.0 * 4.0, -0.8 * 8.0, 0.0 - 14.0),
-        ).to_homogeneous() *
+        let model = na::Translation3::from_vector(na::Vector3::new(
+            ezconf_float!(CONFIG: "planet.x", 5.8) as f32,
+            ezconf_float!(CONFIG: "planet.y", -6.4) as f32,
+            ezconf_float!(CONFIG: "planet.z", -14.0) as f32,
+        )).to_homogeneous() *
             na::Rotation3::new(na::Vector3::new(0.0, s.rotation, 0.0)).to_homogeneous() *
-            na::Matrix4::new_scaling(6.0);
+            na::Matrix4::new_scaling(ezconf_float!(CONFIG: "planet.scale", 6.0) as f32);
 
 
         let camera_position = na::Point3::new(3.0, s.camera_height, 2.0);

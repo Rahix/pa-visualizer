@@ -11,7 +11,7 @@ out vec4 frg_color;
 
 void main() {
     vec2 pos = frag_tex_coord * 2.0 - 1.0;
-    float delta = time - start_time;
+    float delta = time - start_time - rand * 0.2;
     float locatione = 1.0 - (pos.y * 0.5 + 0.5) + 1.0 - delta;
     if(locatione > 1.0) {
         discard;
@@ -21,9 +21,9 @@ void main() {
     int colorid = int(floor(rand * 2.0));
     vec3 color = vec3(1.0);
     if(colorid == 0) {
-        color = vec3(0.000015, 0.000554, 0.062991) / 1.0;
+        color = vec3(0.000015, 0.000554, 0.062991) * 1.0;
     } else {
-        color = vec3(0.007443, 0.013841, 0.138793) / 1.0;
+        color = vec3(0.007443, 0.013841, 0.138793) * 1.0;
     }
     frg_color = vec4(color, intensity * 0.5);
 }
