@@ -31,13 +31,13 @@ pub fn visualizer(
     audio_info: ::std::sync::Arc<::std::sync::RwLock<framework::AudioInfo>>,
     mut run_mode: framework::RunMode,
 ) {
-    /*let display_columns = config
+    let display_columns = config
         .get("DISPLAY_COLUMNS")
         .map(|v| {
             v.as_integer().expect("DISPLAY_COLUMNS must be an integer")
         })
         .unwrap_or(20) as usize;
-    info!("DISPLAY_COLUMNS = {}", display_columns);*/
+    info!("DISPLAY_COLUMNS = {}", display_columns);
 
     let window_height = config
         .get("WINDOW_HEIGHT")
@@ -262,6 +262,10 @@ pub fn visualizer(
     let mut last_ship: f32 = 0.0;
     let mut do_ship = false;
 
+    let mut last_drop = 0.0;
+    let start_column = ezconf_int!(CONFIG: "fdrop.start_column", 1) as usize;
+    let num_drops = ezconf_int!(CONFIG: "fdrop.num", 1) as usize;
+
     'mainloop: loop {
         use glium::Surface;
 
@@ -274,7 +278,7 @@ pub fn visualizer(
         };
 
         // Read audio info
-        let (beat, is_beat) = {
+        let (beat, is_beat, max_id) = {
             let ai = audio_info.read().expect("Couldn't read audio info");
             let mut current_volume = 0.0;
             let max_l = ai.raw_spectrum_left
@@ -302,7 +306,26 @@ pub fn visualizer(
                     (ai.raw_spectrum_left[c] / max_l + ai.raw_spectrum_right[c] / max_r) / 2.0 > s
                 })
                 .collect::<Vec<bool>>();
-            ((ai.columns_left[1] + ai.columns_right[1]) / 2.0, is_beat)
+
+            // Columns
+            let mut max_column_id = 0;
+            let mut max_column = 0.0;
+            for i in start_column..display_columns {
+                if ai.columns_right[i] > max_column {
+                    max_column = ai.columns_right[i];
+                    max_column_id = i;
+                }
+                if ai.columns_left[i] > max_column {
+                    max_column = ai.columns_left[i];
+                    max_column_id = i;
+                }
+            }
+
+            (
+                (ai.columns_left[1] + ai.columns_right[1]) / 2.0,
+                is_beat,
+                max_column_id,
+            )
         };
 
         let mut beat2 = false;
@@ -343,21 +366,41 @@ pub fn visualizer(
             station: station_ent,
         };
 
+        let drops_random = ezconf_bool!(CONFIG: "fdrop.random", false);
+        let scale_min = ezconf_float!(CONFIG: "fdrop.min", 0.05) as f32;
+        let scale_fact = ezconf_float!(CONFIG: "fdrop.max", 0.20) as f32 - scale_min;
+        if ((time - last_drop) > ezconf_float!(CONFIG: "fdrop.timeout", 0.1) as f32) &&
+            !drops_random
+        {
+            let position = ((max_id - start_column) as f32 /
+                                (display_columns - start_column) as f32) *
+                2.0 - 1.0;
+            entities::FreqDrop::create(
+                &mut system,
+                &display,
+                &inf,
+                position,
+                rand::random::<f32>() * scale_fact + scale_min,
+            );
+            last_drop = time;
+        }
+
         if do_ship {
             entities::ShipInbound::create(&mut system, &display, &inf);
 
-            let scale_min = ezconf_float!(CONFIG: "fdrop.min", 0.05) as f32;
-            let scale_fact = ezconf_float!(CONFIG: "fdrop.max", 0.20) as f32 - scale_min;
+            if drops_random {
 
-            for _ in 0..ezconf_int!(CONFIG: "fdrop.num", 1) {
-                entities::FreqDrop::create(
-                    &mut system,
-                    &display,
-                    &inf,
-                    rand::random::<f32>() * 4.0 - 2.0,
-                    rand::random::<f32>() * scale_fact + scale_min,
-                );
+                for _ in 0..num_drops {
+                    entities::FreqDrop::create(
+                        &mut system,
+                        &display,
+                        &inf,
+                        rand::random::<f32>() * 4.0 - 2.0,
+                        rand::random::<f32>() * scale_fact + scale_min,
+                    );
+                }
             }
+
             last_ship = time;
             do_ship = false;
         }

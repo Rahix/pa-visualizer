@@ -12,8 +12,8 @@ WINDOW_HEIGHT = 720
 DAMPEN = 0.8
 MAX_DAMPEN = 0.99
 
-COLUMNS = 30
-DISPLAY_COLUMNS = 20
+COLUMNS = 200
+DISPLAY_COLUMNS = 75
 
 SPACE_CAMERA_SPEED = 5.0
 SPACE_CAMERA_HEIGHT = 0.2
@@ -26,8 +26,11 @@ SPACE_SHIP_TIMEOUT = 0.06
 
 [fdrop]
 min = 0.02
-max = 0.05
-num = 30
+max = 0.08
+num = 5
+timeout = 0.2
+random = false
+start_column = 15
 
 [planet]
 x = -10.0
