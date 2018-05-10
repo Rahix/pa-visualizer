@@ -34,6 +34,13 @@ pub struct Vertex {
 
 implement_vertex!(Vertex, position, tex_coord);
 
+#[allow(dead_code)]
+pub enum BillboardMode {
+    Foreground,
+    Middleground,
+    Background,
+}
+
 impl Billboard {
     pub fn create(
         sys: &mut ecs::System,
@@ -41,6 +48,7 @@ impl Billboard {
         display: &glium::Display,
         width: f32,
         height: f32,
+        mode: BillboardMode,
         info: &info::Info,
         prog: Option<rc::Rc<glium::Program>>,
     ) -> ecs::Entity {
@@ -113,8 +121,20 @@ impl Billboard {
         };
 
         sys.add(ent, bb).unwrap();
-        sys.add(ent, components::Drawable::new(Billboard::draw))
-            .unwrap();
+        match mode {
+            BillboardMode::Foreground => {
+                sys.add(ent, components::DrawableForeground::new(Billboard::draw))
+                    .unwrap()
+            }
+            BillboardMode::Middleground => {
+                sys.add(ent, components::Drawable::new(Billboard::draw))
+                    .unwrap()
+            }
+            BillboardMode::Background => {
+                sys.add(ent, components::DrawableBackground::new(Billboard::draw))
+                    .unwrap()
+            }
+        }
 
         ent
     }

@@ -27,8 +27,8 @@ SPACE_SHIP_TIMEOUT = 0.06
 [fdrop]
 min = 0.02
 max = 0.08
-num = 5
-timeout = 0.2
+num = 3
+timeout = 0.1
 random = false
 start_column = 15
 

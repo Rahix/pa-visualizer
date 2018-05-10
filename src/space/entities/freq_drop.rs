@@ -53,6 +53,7 @@ impl FreqDrop {
             display,
             width,
             4.0,
+            entities::billboard::BillboardMode::Background,
             info,
             Some(shared.program.clone()),
         );

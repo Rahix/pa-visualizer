@@ -437,7 +437,9 @@ pub fn visualizer(
         components::updateable::update(&mut system, &inf);
         components::physics::update(&mut system, &inf);
 
+        components::drawable::draw_bg(&system, &inf, &mut framebuffer1);
         components::drawable::draw(&system, &inf, &mut framebuffer1);
+        components::drawable::draw_fg(&system, &inf, &mut framebuffer1);
 
         // Background
         framebuffer2

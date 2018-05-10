@@ -50,6 +50,7 @@ impl FsdFlash {
             display,
             1.0,
             1.0,
+            entities::billboard::BillboardMode::Foreground,
             info,
             Some(shared.program.clone()),
         );
