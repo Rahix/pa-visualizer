@@ -11,7 +11,7 @@ out vec4 frg_color;
 
 void main() {
     vec2 pos = frag_tex_coord * 2.0 - 1.0;
-    float delta = time - start_time - rand * 0.2;
+    float delta = time - start_time - rand * 0.07;
     float locatione = 1.0 - (pos.y * 0.5 + 0.5) + 1.0 - delta;
     if(locatione > 1.0) {
         discard;

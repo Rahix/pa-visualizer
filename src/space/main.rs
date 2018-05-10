@@ -308,16 +308,19 @@ pub fn visualizer(
                 .collect::<Vec<bool>>();
 
             // Columns
-            let mut max_column_id = 0;
+            let mut max_column_id = std::collections::VecDeque::with_capacity(num_drops + 1);
             let mut max_column = 0.0;
             for i in start_column..display_columns {
                 if ai.columns_right[i] > max_column {
                     max_column = ai.columns_right[i];
-                    max_column_id = i;
+                    max_column_id.push_front(i);
                 }
                 if ai.columns_left[i] > max_column {
                     max_column = ai.columns_left[i];
-                    max_column_id = i;
+                    max_column_id.push_front(i);
+                }
+                if max_column_id.len() == num_drops {
+                    max_column_id.pop_back();
                 }
             }
 
@@ -372,16 +375,18 @@ pub fn visualizer(
         if ((time - last_drop) > ezconf_float!(CONFIG: "fdrop.timeout", 0.1) as f32) &&
             !drops_random
         {
-            let position = ((max_id - start_column) as f32 /
-                                (display_columns - start_column) as f32) *
-                2.0 - 1.0;
-            entities::FreqDrop::create(
-                &mut system,
-                &display,
-                &inf,
-                position,
-                rand::random::<f32>() * scale_fact + scale_min,
-            );
+            for id in max_id.iter() {
+                let position = ((id - start_column) as f32 /
+                                    (display_columns - start_column) as f32)
+                    .sqrt() * 2.0 - 1.0;
+                entities::FreqDrop::create(
+                    &mut system,
+                    &display,
+                    &inf,
+                    position,
+                    rand::random::<f32>() * scale_fact + scale_min,
+                );
+            }
             last_drop = time;
         }
 
