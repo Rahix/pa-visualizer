@@ -21,9 +21,9 @@ void main() {
     int colorid = int(floor(rand * 2.0));
     vec3 color = vec3(1.0);
     if(colorid == 0) {
-        color = vec3(0.000015, 0.000554, 0.062991) * 0.5;
+        color = vec3(0.000015, 0.000554, 0.062991) * 1.5;
     } else {
-        color = vec3(0.007443, 0.013841, 0.138793) * 0.5;
+        color = vec3(0.007443, 0.013841, 0.138793) * 1.5;
     }
     frg_color = vec4(color, intensity * 0.5);
 }

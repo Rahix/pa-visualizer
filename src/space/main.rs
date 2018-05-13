@@ -125,8 +125,22 @@ pub fn visualizer(
 
     let mut events_loop = glutin::EventsLoop::new();
 
+    let monitor = events_loop.get_primary_monitor();
+    let dims = monitor.get_dimensions();
+
     let window = glutin::WindowBuilder::new()
-        .with_dimensions(window_width, window_height)
+        .with_dimensions(
+            if let framework::RunMode::Live = run_mode {
+                dims.0
+            } else {
+                window_width
+            },
+            if let framework::RunMode::Live = run_mode {
+                dims.1
+            } else {
+                window_height
+            },
+        )
         .with_maximized(if let framework::RunMode::Live = run_mode {
             true
         } else {
@@ -134,7 +148,7 @@ pub fn visualizer(
         })
         .with_decorations(false)
         .with_fullscreen(if let framework::RunMode::Live = run_mode {
-            Some(events_loop.get_primary_monitor())
+            Some(monitor)
         } else {
             None
         })
@@ -244,7 +258,12 @@ pub fn visualizer(
     let mut system = ecs::System::new();
 
     let station_ent = entities::Station::create(&mut system, &display, config.clone());
-    entities::Planet::create(&mut system, &display, config.clone());
+    let planet_ent = entities::Planet::create(&mut system, &display, config.clone());
+    entities::Ring::create_multiple(
+        &mut system,
+        &display,
+        ezconf_int!(CONFIG: "ring.num", 5) as usize,
+    );
 
     let start_time = ::std::time::Instant::now();
 
@@ -278,7 +297,7 @@ pub fn visualizer(
         };
 
         // Read audio info
-        let (beat, is_beat, max_id) = {
+        let (inf, beat, max_id) = {
             let ai = audio_info.read().expect("Couldn't read audio info");
             let mut current_volume = 0.0;
             let max_l = ai.raw_spectrum_left
@@ -319,54 +338,76 @@ pub fn visualizer(
                     max_column = ai.columns_left[i];
                     max_column_id.push_front(i);
                 }
-                if max_column_id.len() == num_drops {
+                if max_column_id.len() > num_drops {
                     max_column_id.pop_back();
                 }
             }
 
-            (
-                (ai.columns_left[1] + ai.columns_right[1]) / 2.0,
-                is_beat,
-                max_column_id,
-            )
-        };
+            let beat = (ai.columns_left[1] + ai.columns_right[1]) / 2.0;
+            let max_id = max_column_id;
 
-        let mut beat2 = false;
-        if (time - last_ship) > timeout {
-            for (current, previous) in is_beat.iter().zip(is_beat_previous.iter()) {
-                if *current == true && *previous == false {
-                    do_ship = true;
-                    beat2 = true;
-                    break;
+            let mut beat2 = false;
+            if (time - last_ship) > timeout {
+                for (current, previous) in is_beat.iter().zip(is_beat_previous.iter()) {
+                    if *current == true && *previous == false {
+                        do_ship = true;
+                        beat2 = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        let time_scaled = time * std::f32::consts::PI / camera_speed;
-        let camera_position = na::Point3::new(
-            3.0,
-            camera_height,
-            time_scaled.cos() * camera_radius / 2.0 + 1.0,
-        );
-        let view = na::Matrix4::look_at_rh(
-            &camera_position,
-            &(camera_position + na::Vector3::new(-2.0, 0.0, -1.0)),
-            &na::Vector3::new(0.0, 1.0, 0.0),
-        );
+            let time_scaled = time * std::f32::consts::PI / camera_speed;
+            let camera_position = na::Point3::new(
+                3.0,
+                camera_height,
+                time_scaled.cos() * camera_radius / 2.0 + 1.0,
+            );
+            let view = na::Matrix4::look_at_rh(
+                &camera_position,
+                &(camera_position + na::Vector3::new(-2.0, 0.0, -1.0)),
+                &na::Vector3::new(0.0, 1.0, 0.0),
+            );
 
 
-        let inf = info::Info {
-            time,
-            delta: time - previous_time,
-            perspective,
-            view,
-            beat,
-            volume,
-            is_beat,
-            is_beat_previous,
-            beat2,
+            let inf = info::Info {
+                time,
+                delta: time - previous_time,
+                perspective,
+                view,
+                beat,
+                volume,
+                is_beat,
+                is_beat_previous,
+                beat2,
 
-            station: station_ent,
+                station: station_ent,
+                planet: planet_ent,
+
+                spectrum: Some((&ai.raw_spectrum_left, &ai.raw_spectrum_right)),
+            };
+
+            components::updateable::update(&mut system, &inf);
+            components::physics::update(&mut system, &inf);
+
+            let inf = info::Info {
+                time,
+                delta: time - previous_time,
+                perspective,
+                view,
+                beat,
+                volume,
+                is_beat: inf.is_beat,
+                is_beat_previous: inf.is_beat_previous,
+                beat2,
+
+                station: station_ent,
+                planet: planet_ent,
+
+                spectrum: None,
+            };
+
+            (inf, beat, max_id)
         };
 
         let drops_random = ezconf_bool!(CONFIG: "fdrop.random", false);
@@ -431,11 +472,6 @@ pub fn visualizer(
             time: time,
             beat: beat,
         };
-
-
-
-        components::updateable::update(&mut system, &inf);
-        components::physics::update(&mut system, &inf);
 
         components::drawable::draw_bg(&system, &inf, &mut framebuffer1);
         components::drawable::draw(&system, &inf, &mut framebuffer1);

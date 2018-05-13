@@ -38,6 +38,15 @@ y = -12.0
 z = -28.0
 scale = 12.0
 
+[ring]
+num_verts = 64
+num = 15
+radius_base = 14.0
+width = 10.0
+rot_x = 0.0
+rot_y = 1.0
+rot_z = -0.3
+
 # What spectrum columns to watch for the beat
 [[SPACE_BEAT_COLS]]
 c = 16
