@@ -27,8 +27,8 @@ SPACE_SHIP_TIMEOUT = 0.06
 [fdrop]
 min = 0.02
 max = 0.08
-num = 3
-timeout = 0.1
+num = 0
+timeout = 100.5
 random = false
 start_column = 15
 
@@ -40,12 +40,14 @@ scale = 12.0
 
 [ring]
 num_verts = 64
-num = 15
+num = 20
 radius_base = 14.0
-width = 10.0
+width = 15.0
 rot_x = 0.0
 rot_y = 1.0
 rot_z = -0.3
+volume = 4.0
+dampen = 0.95
 
 # What spectrum columns to watch for the beat
 [[SPACE_BEAT_COLS]]
