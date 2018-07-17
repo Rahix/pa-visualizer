@@ -13,7 +13,7 @@ out vec4 frg_color;
 float PI = 3.1415926;
 
 float radius = 0.15;
-float beat_intensity = 0.06;
+float beat_intensity = 0.16;
 vec2 position = vec2(-0.2, -0.4);
 
 float circle(vec2 coords) {

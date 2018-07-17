@@ -209,6 +209,30 @@ pub fn visualizer(
         &depth_texture2,
     ).unwrap();
 
+    let tex_color_pregauss = glium::texture::Texture2d::empty_with_format(
+        &display,
+        glium::texture::UncompressedFloatFormat::F32F32F32F32,
+        glium::texture::MipmapsOption::NoMipmap,
+        window_width,
+        window_height,
+    ).unwrap();
+
+    let depth_texture_pregauss = glium::texture::DepthTexture2d::empty_with_format(
+        &display,
+        glium::texture::DepthFormat::F32,
+        glium::texture::MipmapsOption::NoMipmap,
+        window_width,
+        window_height,
+    ).unwrap();
+
+    let output_pregauss = &[("frg_color", &tex_color_pregauss)];
+
+    let mut framebuffer_pregauss = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(
+        &display,
+        output_pregauss.iter().cloned(),
+        &depth_texture_pregauss,
+    ).unwrap();
+
     // Postprocess screen rect
     let quad_vertex_buffer = {
         #[derive(Copy, Clone)]
@@ -249,6 +273,9 @@ pub fn visualizer(
     ).unwrap();
 
     let fxaa_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/fxaa.frag");
+    let gauss_program = shader_program!(&display, "shaders/postprocess.vert", "shaders/gauss.frag");
+    let combine_program =
+        shader_program!(&display, "shaders/postprocess.vert", "shaders/combine.frag");
     let background_program = shader_program!(
         &display,
         "shaders/postprocess.vert",
@@ -454,6 +481,7 @@ pub fn visualizer(
         // Clear both framebuffers
         framebuffer1.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
         framebuffer2.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
+        framebuffer_pregauss.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
 
         let uniforms1 =
             uniform! {
@@ -467,6 +495,28 @@ pub fn visualizer(
         let uniforms2 =
             uniform! {
             tex_color: tex_color2.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            resolution: [window_width as f32, window_height as f32],
+            time: time,
+            beat: beat,
+            horizontal: false,
+        };
+
+        let uniforms_pregauss =
+            uniform! {
+            tex_color: tex_color_pregauss.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            resolution: [window_width as f32, window_height as f32],
+            time: time,
+            beat: beat,
+            horizontal: true,
+        };
+
+        let uniforms_combined =
+            uniform! {
+            tex_color: tex_color_pregauss.sampled()
+                .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
+            tex_gaussed: tex_color1.sampled()
                 .wrap_function(glium::uniforms::SamplerWrapFunction::Mirror),
             resolution: [window_width as f32, window_height as f32],
             time: time,
@@ -488,8 +538,8 @@ pub fn visualizer(
             )
             .unwrap();
 
-        // Postprocess
-        framebuffer1
+        // FXAA
+        framebuffer_pregauss
             .draw(
                 &quad_vertex_buffer,
                 &quad_index_buffer,
@@ -499,10 +549,43 @@ pub fn visualizer(
             )
             .unwrap();
 
+        // GAUSS 1
+        framebuffer2
+            .draw(
+                &quad_vertex_buffer,
+                &quad_index_buffer,
+                &gauss_program,
+                &uniforms_pregauss,
+                &Default::default(),
+            )
+            .unwrap();
+
+        // GAUSS 2
+        framebuffer1
+            .draw(
+                &quad_vertex_buffer,
+                &quad_index_buffer,
+                &gauss_program,
+                &uniforms2,
+                &Default::default(),
+            )
+            .unwrap();
+
+        // Combine
+        framebuffer2
+            .draw(
+                &quad_vertex_buffer,
+                &quad_index_buffer,
+                &combine_program,
+                &uniforms_combined,
+                &Default::default(),
+            )
+            .unwrap();
+
         let target = display.draw();
         let dims = target.get_dimensions();
         target.blit_from_simple_framebuffer(
-            &tex_color1.as_surface(),
+            &tex_color2.as_surface(),
             &glium::Rect {
                 left: 0,
                 bottom: 0,
