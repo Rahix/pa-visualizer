@@ -28,9 +28,9 @@ float stripes(vec2 coords) {
     c.y = c.y * resolution.y / resolution.x - radius;
     float result = 0.0;
     float smoothsize = 0.005 * radius / 0.3;
-    float size = 0.002 * radius / 0.3;
+    float size = 0.008 * radius / 0.3;
     for(int i = 3; i < 16; i++) {
-        float y = c.y + pow(i / 2.0, 2) * 0.01 * radius / 0.3;
+        float y = c.y + pow(i / 2.0, 2) * 0.025 * radius / 0.3;
         result += smoothstep(smoothsize + size, size, y)
                 - smoothstep(-size, -size - smoothsize, y);
     }
