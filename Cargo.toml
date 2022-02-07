@@ -11,6 +11,8 @@ path = "src/ascii.rs"
 name = "pa-visualizer-debug"
 path = "src/debug.rs"
 
+# The examples below need to be fixed so they compile again... Sorry!
+
 # [[bin]]
 # name = "pa-visualizer-python"
 # path = "src/python.rs"
@@ -40,7 +42,6 @@ name = "pa-visualizer-space"
 path = "src/space/main.rs"
 
 [dependencies]
-# cpython = "0.1.0"
 ezconf = "0.1.0"
 glium = "0.31.0"
 image = "0.18.0"
@@ -50,8 +51,9 @@ nalgebra = "0.30.1"
 obj = "0.8.0"
 pretty_env_logger = "0.1.1"
 rand = "0.3.18"
-# sfml = "0.14.0"
 toml = "0.4.6"
+# cpython = "0.1.0"
+# sfml = "0.14.0"
 
 [dependencies.eagre-ecs]
 git = "https://github.com/Rahix/eagre-ecs.git"
