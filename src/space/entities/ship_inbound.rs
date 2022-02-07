@@ -60,7 +60,7 @@ impl ShipInbound {
                 return;
             }
             let s = sys.borrow::<ShipInbound>(ent).unwrap();
-            na::normalize(&na::Vector3::new(-1.0, -pos.y * 5.0, -pos.z * 5.0)) *
+            (&na::Vector3::new(-1.0, -pos.y * 5.0, -pos.z * 5.0).normalize()) *
                 (1.0 / (1.0 + info.time - s.start_time) + 0.4)
         };
 

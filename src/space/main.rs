@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 extern crate eagre_ecs as ecs;
 extern crate framework;
 #[macro_use]

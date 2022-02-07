@@ -134,8 +134,8 @@ impl Ship {
 
         let fac = if vel.x > 0.0 { 1.0 } else { -1.0 };
         let model = (na::Translation3::from_vector(pos.coords + mailslot_vector) *
-                         na::UnitQuaternion::new_observer_frame(
-                &na::normalize(&vel),
+                         na::UnitQuaternion::new_observer_frames(
+                &(vel.normalize()),
                 &na::Vector3::new(0.0, 1.0, 0.0),
             ) *
                          na::UnitQuaternion::new(

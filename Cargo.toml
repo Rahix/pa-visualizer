@@ -11,21 +11,21 @@ path = "src/ascii.rs"
 name = "pa-visualizer-debug"
 path = "src/debug.rs"
 
-[[bin]]
-name = "pa-visualizer-python"
-path = "src/python.rs"
-
-[[bin]]
-name = "pa-visualizer-sfml-simple"
-path = "src/sfml-simple.rs"
-
-[[bin]]
-name = "pa-visualizer-sfml-wireline"
-path = "src/sfml-wireline.rs"
-
-[[bin]]
-name = "pa-visualizer-sfml-wirecircle"
-path = "src/sfml-wirecircle.rs"
+# [[bin]]
+# name = "pa-visualizer-python"
+# path = "src/python.rs"
+#
+# [[bin]]
+# name = "pa-visualizer-sfml-simple"
+# path = "src/sfml-simple.rs"
+#
+# [[bin]]
+# name = "pa-visualizer-sfml-wireline"
+# path = "src/sfml-wireline.rs"
+#
+# [[bin]]
+# name = "pa-visualizer-sfml-wirecircle"
+# path = "src/sfml-wirecircle.rs"
 
 [[bin]]
 name = "pa-visualizer-noambition"
@@ -40,17 +40,17 @@ name = "pa-visualizer-space"
 path = "src/space/main.rs"
 
 [dependencies]
-cpython = "0.1.0"
+# cpython = "0.1.0"
 ezconf = "0.1.0"
 glium = "0.18.1"
 image = "0.18.0"
 lazy_static = "1.0.0"
 log = "0.3.8"
-nalgebra = "0.13.1"
+nalgebra = "0.30.1"
 obj = "0.8.0"
 pretty_env_logger = "0.1.1"
 rand = "0.3.18"
-sfml = "0.14.0"
+# sfml = "0.14.0"
 toml = "0.4.6"
 
 [dependencies.eagre-ecs]
