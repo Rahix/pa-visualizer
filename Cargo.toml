@@ -42,7 +42,7 @@ path = "src/space/main.rs"
 [dependencies]
 # cpython = "0.1.0"
 ezconf = "0.1.0"
-glium = "0.18.1"
+glium = "0.31.0"
 image = "0.18.0"
 lazy_static = "1.0.0"
 log = "0.3.8"

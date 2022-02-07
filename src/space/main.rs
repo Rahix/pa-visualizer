@@ -26,6 +26,8 @@ mod entities;
 mod components;
 mod info;
 
+use glutin::platform::run_return::EventLoopExtRunReturn;
+
 ezconf_file!(CONFIG = "configs/space.toml");
 
 pub fn visualizer(
@@ -125,24 +127,24 @@ pub fn visualizer(
         .unwrap_or(0.0) as f32;
     info!("SPACE_CAMERA_HEIGHT = {}", camera_height);
 
-    let mut events_loop = glutin::EventsLoop::new();
+    let mut events_loop = glutin::event_loop::EventLoop::new();
 
-    let monitor = events_loop.get_primary_monitor();
-    let dims = monitor.get_dimensions();
+    let monitor = events_loop.primary_monitor().expect("no primary display?");
+    let dims = monitor.size();
 
-    let window = glutin::WindowBuilder::new()
-        .with_dimensions(
+    let window = glutin::window::WindowBuilder::new()
+        .with_inner_size(glutin::dpi::LogicalSize::new(
             if let framework::RunMode::Live = run_mode {
-                dims.0
+                dims.width
             } else {
                 window_width
             },
             if let framework::RunMode::Live = run_mode {
-                dims.1
+                dims.height
             } else {
                 window_height
             },
-        )
+        ))
         .with_maximized(if let framework::RunMode::Live = run_mode {
             true
         } else {
@@ -150,7 +152,7 @@ pub fn visualizer(
         })
         .with_decorations(false)
         .with_fullscreen(if let framework::RunMode::Live = run_mode {
-            Some(monitor)
+            Some(glutin::window::Fullscreen::Borderless(Some(monitor)))
         } else {
             None
         })
@@ -606,39 +608,42 @@ pub fn visualizer(
 
         // Event handling
         let mut running = true;
-        events_loop.poll_events(|event| match event {
-            glutin::Event::WindowEvent { event, .. } => {
-                match event {
-                    glutin::WindowEvent::Closed => running = false,
-                    glutin::WindowEvent::KeyboardInput {
-                        input: glutin::KeyboardInput {
-                            state: glutin::ElementState::Pressed,
-                            virtual_keycode: Some(glutin::VirtualKeyCode::Escape),
+        events_loop.run_return(|ev, _, control_flow| {
+            match ev {
+                glutin::event::Event::WindowEvent { event, .. } => {
+                    match event {
+                        glutin::event::WindowEvent::CloseRequested => running = false,
+                        glutin::event::WindowEvent::KeyboardInput {
+                            input: glutin::event::KeyboardInput {
+                                state: glutin::event::ElementState::Pressed,
+                                virtual_keycode: Some(glutin::event::VirtualKeyCode::Escape),
+                                ..
+                            },
                             ..
-                        },
-                        ..
-                    } => running = false,
-                    glutin::WindowEvent::KeyboardInput {
-                        input: glutin::KeyboardInput {
-                            state: glutin::ElementState::Pressed,
-                            virtual_keycode: Some(_),
+                        } => running = false,
+                        glutin::event::WindowEvent::KeyboardInput {
+                            input: glutin::event::KeyboardInput {
+                                state: glutin::event::ElementState::Pressed,
+                                virtual_keycode: Some(_),
+                                ..
+                            },
                             ..
-                        },
-                        ..
-                    } => {
-                        entities::ShipOutbound::create(&mut system, &display, &inf);
-                        entities::FreqDrop::create(
-                            &mut system,
-                            &display,
-                            &inf,
-                            rand::random::<f32>() * 4.0 - 2.0,
-                            rand::random::<f32>() * 0.2,
-                        );
+                        } => {
+                            entities::ShipOutbound::create(&mut system, &display, &inf);
+                            entities::FreqDrop::create(
+                                &mut system,
+                                &display,
+                                &inf,
+                                rand::random::<f32>() * 4.0 - 2.0,
+                                rand::random::<f32>() * 0.2,
+                            );
+                        }
+                        _ => (),
                     }
-                    _ => (),
                 }
+                _ => (),
             }
-            _ => (),
+            *control_flow = glutin::event_loop::ControlFlow::Exit;
         });
         if !running {
             break 'mainloop;
@@ -648,7 +653,7 @@ pub fn visualizer(
         is_beat_previous = inf.is_beat;
 
         if let framework::RunMode::Rendering(ref mut render_info) = run_mode {
-            let image: glium::texture::RawImage2d<u8> = display.read_front_buffer();
+            let image: glium::texture::RawImage2d<u8> = display.read_front_buffer().unwrap();
             let image =
                 image::ImageBuffer::from_raw(image.width, image.height, image.data.into_owned())
                     .unwrap();
